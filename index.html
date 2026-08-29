@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#0b0f1a" />
+    <meta name="description" content="SureWin VIP Member Portal" />
+    <title>SureWin VIP Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* ── Design tokens ─────────────────────────────────────────────── */
+      :root {
+        /* Backgrounds */
+        --bg:        #0b0f1a;
+        --surface:   #111827;
+        --surface2:  #1a2236;
+        --card:      #1e2a3d;
+        --card2:     #243047;
+
+        /* Borders */
+        --border:    #2d3f5a;
+        --border-s:  #1e2e45;
+
+        /* Text */
+        --text:      #f0f4ff;
+        --text-2:    #a8b8d4;
+        --muted:     #6a82a0;
+        --dim:       #3d5070;
+
+        /* Brand — Royal Gold */
+        --gold:      #c9a648;
+        --gold-2:    #e6c96a;
+        --gold-dim:  rgba(201,166,72,.15);
+        --gold-glow: rgba(201,166,72,.25);
+
+        /* Semantic */
+        --success:   #22c55e;
+        --success-bg:rgba(34,197,94,.12);
+        --warn:      #f59e0b;
+        --warn-bg:   rgba(245,158,11,.12);
+        --danger:    #ef4444;
+        --danger-bg: rgba(239,68,68,.12);
+        --info:      #3b82f6;
+        --info-bg:   rgba(59,130,246,.12);
+
+        /* Tier colours */
+        --tier-diamond:  #8b5cf6;
+        --tier-platinum: #60a5fa;
+        --tier-gold:     #f59e0b;
+        --tier-silver:   #94a3b8;
+        --tier-bronze:   #cd7f32;
+        --tier-black:    #e5e7eb;
+
+        /* Radius & spacing */
+        --r:  8px;
+        --rl: 14px;
+        --rx: 20px;
+
+        /* Bottom-nav safe area */
+        --nav-height: 64px;
+
+        font-size: 16px;
+      }
+
+      /* Minimal reset */
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      html { height: 100%; }
+      body {
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100%;
+        -webkit-font-smoothing: antialiased;
+        overscroll-behavior: none;
+      }
+      #root { min-height: 100vh; }
+      img, svg { display: block; max-width: 100%; }
+      button { font-family: inherit; cursor: pointer; border: none; background: none; }
+      a { color: inherit; text-decoration: none; }
+      input, textarea, select { font-family: inherit; }
+
+      /* Scrollbar */
+      ::-webkit-scrollbar { width: 6px; }
+      ::-webkit-scrollbar-track { background: var(--surface); }
+      ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+      /* Selection */
+      ::selection { background: var(--gold-dim); color: var(--gold-2); }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
