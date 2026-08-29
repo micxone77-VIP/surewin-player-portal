@@ -3,6 +3,7 @@ name: Portal CI
 on:
   push:
     branches:
+      - main
       - feature/portal-p0-final
   pull_request:
     branches:
