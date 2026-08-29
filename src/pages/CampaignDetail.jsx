@@ -75,8 +75,8 @@ export default function CampaignDetail() {
     try {
       // -- Step 1: Parallel — campaign + levels (no code) + progress RPC --
       const [campRes, levelsRes, progRes] = await Promise.all([
-        supabase.from('campaigns').select(CAMPAIGN_SELECT).eq('id', id).single(),
-        supabase.rpc('get_my_campaign_levels', { p_campaign_id: id }),
+        supabase.rpc('get_portal_campaign', { p_campaign_id: id }),
+        supabase.rpc('get_portal_campaign_levels', { p_campaign_id: id }),
         supabase.rpc('get_my_campaign_progress', { p_campaign_id: id }),
       ])
 
@@ -86,7 +86,7 @@ export default function CampaignDetail() {
         return
       }
 
-      const campaign = campRes.data
+      const campaign = Array.isArray(campRes.data) ? campRes.data[0] : campRes.data
       const levels   = levelsRes.data ?? []
       const prog     = progRes.data   ?? {}
       const levelIds = levels.map(l => l.id)
