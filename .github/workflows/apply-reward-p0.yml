@@ -1,0 +1,40 @@
+name: Apply reward P0 patch
+
+on:
+  push:
+    branches:
+      - feature/campaign-portal-p0
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Patch reward RPC calls
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('src/pages/Rewards.jsx')
+          s = p.read_text(encoding='utf-8')
+          old = """      const levelResults = await Promise.all(\n        campaignIds.map(campaignId => supabase.rpc('get_my_campaign_levels', { p_campaign_id: campaignId }))\n      )\n      const levels = levelResults.flatMap(result => result.data ?? [])"""
+          new = """      const levelResults = await Promise.all(\n        campaignIds.map(campaignId => supabase.rpc('get_portal_campaign_levels', { p_campaign_id: campaignId }))\n      )\n      for (const result of levelResults) {\n        if (result.error) throw result.error\n      }\n      const levels = levelResults.flatMap(result => result.data ?? [])"""
+          if old not in s:\n              raise SystemExit('Expected level RPC block was not found')\n          s = s.replace(old, new, 1)\n
+          old2 = """      const codeMap = {}\n      const { data: codeRows } = await supabase.rpc('get_my_unlocked_level_codes')\n      for (const row of codeRows ?? []) {\n        if (row.level_code) codeMap[row.level_id] = row.level_code\n      }"""
+          new2 = """      const codeMap = {}\n      const codeResults = await Promise.all(\n        campaignIds.map(campaignId => supabase.rpc('get_my_unlocked_level_codes', { p_campaign_id: campaignId }))\n      )\n      for (const result of codeResults) {\n        if (result.error) throw result.error\n        for (const row of result.data ?? []) {\n          if (row.level_code) codeMap[row.level_id] = row.level_code\n        }\n      }"""
+          if old2 not in s:\n              raise SystemExit('Expected code RPC block was not found')\n          s = s.replace(old2, new2, 1)\n          p.write_text(s, encoding='utf-8')
+
+      - name: Commit patch and remove temporary workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/pages/Rewards.jsx
+          git rm .github/workflows/apply-reward-p0.yml
+          git commit -m "fix: scope reward RPCs by campaign"
+          git push origin HEAD:feature/campaign-portal-p0
