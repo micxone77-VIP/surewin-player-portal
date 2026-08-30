@@ -16,6 +16,10 @@ export function parseRecoverySession(url = window.location.href) {
   }
 }
 
+export function isRecoveryActivationUrl(url = window.location.href) {
+  return parseRecoverySession(url) !== null
+}
+
 export function validateNewPassword(password, confirmPassword) {
   if (password.length < 8) return 'Password must be at least 8 characters.'
   if (password !== confirmPassword) return 'Passwords do not match.'
