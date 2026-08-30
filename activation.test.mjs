@@ -2,9 +2,11 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { isRecoveryActivationUrl, parseRecoverySession, validateNewPassword } from './src/lib/playerActivation.js'
 
-test('parses Supabase recovery tokens from the URL hash', () => {
+const PORTAL_URL = 'https://surewin-player-portal.pages.dev'
+
+test('parses Supabase recovery tokens from the portal URL hash', () => {
   const result = parseRecoverySession(
-    'https://portal.surewin.app/set-password#access_token=access123&refresh_token=refresh123&type=recovery'
+    `${PORTAL_URL}/set-password#access_token=access123&refresh_token=refresh123&type=recovery`
   )
   assert.deepEqual(result, {
     access_token: 'access123',
@@ -15,17 +17,17 @@ test('parses Supabase recovery tokens from the URL hash', () => {
 
 test('rejects non-recovery auth fragments', () => {
   assert.equal(
-    parseRecoverySession('https://portal.surewin.app/set-password#access_token=a&refresh_token=b&type=signup'),
+    parseRecoverySession(`${PORTAL_URL}/set-password#access_token=a&refresh_token=b&type=signup`),
     null,
   )
 })
 
 test('recognizes only recovery activation URLs', () => {
   assert.equal(
-    isRecoveryActivationUrl('https://portal.surewin.app/set-password#access_token=a&refresh_token=b&type=recovery'),
+    isRecoveryActivationUrl(`${PORTAL_URL}/set-password#access_token=a&refresh_token=b&type=recovery`),
     true,
   )
-  assert.equal(isRecoveryActivationUrl('https://portal.surewin.app/set-password'), false)
+  assert.equal(isRecoveryActivationUrl(`${PORTAL_URL}/set-password`), false)
 })
 
 test('validates activation passwords', () => {
