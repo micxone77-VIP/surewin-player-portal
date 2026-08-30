@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { parseRecoverySession, validateNewPassword } from './src/lib/playerActivation.js'
+import { isRecoveryActivationUrl, parseRecoverySession, validateNewPassword } from './src/lib/playerActivation.js'
 
 test('parses Supabase recovery tokens from the URL hash', () => {
   const result = parseRecoverySession(
@@ -18,6 +18,14 @@ test('rejects non-recovery auth fragments', () => {
     parseRecoverySession('https://portal.surewin.app/set-password#access_token=a&refresh_token=b&type=signup'),
     null,
   )
+})
+
+test('recognizes only recovery activation URLs', () => {
+  assert.equal(
+    isRecoveryActivationUrl('https://portal.surewin.app/set-password#access_token=a&refresh_token=b&type=recovery'),
+    true,
+  )
+  assert.equal(isRecoveryActivationUrl('https://portal.surewin.app/set-password'), false)
 })
 
 test('validates activation passwords', () => {
