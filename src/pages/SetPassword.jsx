@@ -4,7 +4,7 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { parseRecoverySession, validateNewPassword } from '../lib/playerActivation'
+import { isRecoveryActivationUrl, parseRecoverySession, validateNewPassword } from '../lib/playerActivation'
 
 export default function SetPassword() {
   const navigate = useNavigate()
@@ -23,6 +23,12 @@ export default function SetPassword() {
 
     async function prepareRecoverySession() {
       const recovery = parseRecoverySession(window.location.href)
+
+      if (!isRecoveryActivationUrl(window.location.href) || !recovery) {
+        setError('This activation link is invalid or has expired. Please request a new link.')
+        setChecking(false)
+        return
+      }
 
       if (recovery) {
         const { error: sessionError } = await supabase.auth.setSession({
@@ -243,4 +249,4 @@ function LockIcon() { return <Icon><rect x="5" y="10" width="14" height="10" rx=
 function StarIcon() { return <Icon><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3Z" /></Icon> }
 function CheckIcon() { return <Icon><path d="m5 12 4 4L19 6" /></Icon> }
 function EyeIcon() { return <Icon><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z" /><circle cx="12" cy="12" r="2.5" /></Icon> }
-function EyeOffIcon() { return <Icon><path d="m3 3 18 18" /><path d="M10.6 10.6a2 2 0 0 0 2.8 2.8" /><path d="M9.9 4.2A10.6 10.6 0 0 1 12 4c6.5 0 10 6 10 6a18.4 18.4 0 0 1-3 3.5M6.2 6.2C3.5 8.1 2 10 2 10s3.5 6 10 6a10.7 10.7 0 0 0 3-.4" /></Icon> }
+function EyeOffIcon() { return <Icon><path d="m3 3 18 18" /><path d="M10.6 10.6a2 2 0 0 0 2.8 2.8" /><path d="M9.9 4.2A10.6 10.6 0 0 1 12 4c6.5 0 10 6 10 6a18.4 18.4 0 0 1 3 3.5M6.2 6.2C3.5 8.1 2 10 2 10s3.5 6 10 6a10.7 10.7 0 0 0 3-.4" /></Icon> }
