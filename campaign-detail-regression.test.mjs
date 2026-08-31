@@ -8,7 +8,7 @@ const campaignsSource = await readFile('./src/pages/Campaigns.jsx', 'utf8')
 
 test('CampaignDetail rejects an empty RPC array before dereferencing campaign.status', () => {
   assert.match(detailSource, /Array\.isArray\(campRes\.data\)\s*\?\s*campRes\.data\[0\]\s*:\s*campRes\.data/)
-  assert.match(detailSource, /if\s*\(!campaign\)/)
+  assert.match(detailSource, /if\s*\(campRes\.error\s*\|\|\s*!campaign\)/)
   assert.doesNotMatch(detailSource, /if\s*\(campRes\.error\s*\|\|\s*!campRes\.data\)/)
 })
 
