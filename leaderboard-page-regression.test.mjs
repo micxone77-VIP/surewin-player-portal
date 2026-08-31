@@ -12,7 +12,7 @@ test('leaderboard page uses the player-safe rpc', () => {
 test('leaderboard page polls only active campaigns', () => {
   assert.match(source, /setInterval\(/)
   assert.match(source, /status.*active|active.*status/)
-  assert.match(source, /15000/)
+  assert.match(source, /15_?000/)
 })
 
 test('leaderboard page does not provide player performance inputs', () => {
