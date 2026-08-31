@@ -1,0 +1,90 @@
+name: Apply notification refresh fix
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Patch notification refresh
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('src/pages/Notifications.jsx')
+          text = path.read_text()
+          marker = "  useEffect(() => { loadNotifs() }, [loadNotifs])\n"
+          if "player-notifications-" not in text:
+              addition = r'''\n  // Keep notifications fresh while the player remains on the portal.\n  // Realtime handles inserts/updates; focus/visibility and polling provide a\n  // reliable fallback when the browser or Realtime connection is suspended.\n  useEffect(() => {\n    let disposed = false\n\n    const refresh = () => {\n      if (!disposed) loadNotifs()\n    }\n\n    const onFocus = () => refresh()\n    const onVisibility = () => {\n      if (document.visibilityState === 'visible') refresh()\n    }\n\n    const intervalId = window.setInterval(refresh, 30000)\n    window.addEventListener('focus', onFocus)\n    document.addEventListener('visibilitychange', onVisibility)\n\n    const channel = supabase\n      .channel(`player-notifications-${Math.random().toString(36).slice(2)}`)\n      .on(\n        'postgres_changes',\n        { event: '*', schema: 'public', table: 'player_notifications' },\n        refresh,\n      )\n      .subscribe()\n\n    return () => {\n      disposed = true\n      window.clearInterval(intervalId)\n      window.removeEventListener('focus', onFocus)\n      document.removeEventListener('visibilitychange', onVisibility)\n      supabase.removeChannel(channel)\n    }\n  }, [loadNotifs])\n'''
+              text = text.replace(marker, marker + addition.replace('\\n', '\n'), 1)
+              path.write_text(text)
+          PY
+
+      - name: Add campaign-end notification migration
+        run: |
+          cat > supabase/migrations/20260831_campaign_end_notifications.sql <<'SQL'
+          CREATE OR REPLACE FUNCTION public.notify_campaign_ended()
+          RETURNS trigger
+          LANGUAGE plpgsql
+          SECURITY DEFINER
+          SET search_path = pg_catalog, public
+          AS $$
+          BEGIN
+            IF NEW.status = 'ended' AND OLD.status IS DISTINCT FROM 'ended' THEN
+              INSERT INTO public.player_notifications
+                (vip_member_id, campaign_id, title, body, is_read)
+              SELECT DISTINCT
+                cp.vip_id,
+                NEW.id,
+                'Campaign Ended',
+                format('%s has ended. Final results are now available in My Campaigns.', NEW.campaign_name),
+                false
+              FROM public.campaign_players cp
+              WHERE cp.campaign_id = NEW.id
+                AND cp.vip_id IS NOT NULL
+                AND NOT EXISTS (
+                  SELECT 1
+                  FROM public.player_notifications pn
+                  WHERE pn.vip_member_id = cp.vip_id
+                    AND pn.campaign_id = NEW.id
+                    AND pn.title = 'Campaign Ended'
+                );
+            END IF;
+            RETURN NEW;
+          END;
+          $$;
+
+          DROP TRIGGER IF EXISTS trg_campaign_ended_player_notification ON public.campaigns;
+          CREATE TRIGGER trg_campaign_ended_player_notification
+          AFTER UPDATE OF status ON public.campaigns
+          FOR EACH ROW
+          EXECUTE FUNCTION public.notify_campaign_ended();
+
+          REVOKE ALL ON FUNCTION public.notify_campaign_ended() FROM PUBLIC;
+          SQL
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run notification regression tests
+        run: node notification-refresh-regression.test.mjs
+
+      - name: Build portal
+        run: npm run build
+
+      - name: Commit verified fix and remove temporary workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/pages/Notifications.jsx supabase/migrations/20260831_campaign_end_notifications.sql notification-refresh-regression.test.mjs .github/workflows/apply-notification-refresh-fix.yml
+          git rm .github/workflows/apply-notification-refresh-fix.yml
+          git commit -m "fix: refresh player notifications and notify campaign end"
+          git push origin main
