@@ -28,14 +28,21 @@ jobs:
               raise SystemExit('CampaignDetail patch target not found')
           detail.write_text(text.replace(old, new, 1))
 
-          for name in ['src/pages/Dashboard.jsx', 'src/pages/Campaigns.jsx']:
-              path = Path(name)
-              text = path.read_text()
-              old = """        .select(CAMPAIGN_SELECT)\n        .order('created_at', { ascending: false })\n"""
-              new = """        .select(CAMPAIGN_SELECT)\n        .in('status', ['active', 'upcoming', 'ended', 'paused'])\n        .order('created_at', { ascending: false })\n"""
-              if old not in text:
-                  raise SystemExit(f'{name} patch target not found')
-              path.write_text(text.replace(old, new, 1))
+          dashboard = Path('src/pages/Dashboard.jsx')
+          text = dashboard.read_text()
+          old = """        .select('id, campaign_name, status, start_date, end_date, is_multi_level, offer_desc, campaign_type')\n        .order('created_at', { ascending: false })\n"""
+          new = """        .select('id, campaign_name, status, start_date, end_date, is_multi_level, offer_desc, campaign_type')\n        .in('status', ['active', 'upcoming', 'ended', 'paused'])\n        .order('created_at', { ascending: false })\n"""
+          if old not in text:
+              raise SystemExit('Dashboard patch target not found')
+          dashboard.write_text(text.replace(old, new, 1))
+
+          campaigns = Path('src/pages/Campaigns.jsx')
+          text = campaigns.read_text()
+          old = """        .select(CAMPAIGN_SELECT)\n        .order('created_at', { ascending: false })\n"""
+          new = """        .select(CAMPAIGN_SELECT)\n        .in('status', ['active', 'upcoming', 'ended', 'paused'])\n        .order('created_at', { ascending: false })\n"""
+          if old not in text:
+              raise SystemExit('Campaigns patch target not found')
+          campaigns.write_text(text.replace(old, new, 1))
           PY
 
       - name: Install dependencies
