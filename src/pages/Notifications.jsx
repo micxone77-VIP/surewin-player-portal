@@ -102,6 +102,43 @@ export default function Notifications() {
 
   useEffect(() => { loadNotifs() }, [loadNotifs])
 
+  // Keep notifications fresh while the player remains on the portal.
+  // Realtime handles inserts/updates; focus/visibility and polling provide a
+  // reliable fallback when the browser or Realtime connection is suspended.
+  useEffect(() => {
+    let disposed = false
+
+    const refresh = () => {
+      if (!disposed) loadNotifs()
+    }
+
+    const onFocus = () => refresh()
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') refresh()
+    }
+
+    const intervalId = window.setInterval(refresh, 30000)
+    window.addEventListener('focus', onFocus)
+    document.addEventListener('visibilitychange', onVisibility)
+
+    const channel = supabase
+      .channel(`player-notifications-${Math.random().toString(36).slice(2)}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'player_notifications' },
+        refresh,
+      )
+      .subscribe()
+
+    return () => {
+      disposed = true
+      window.clearInterval(intervalId)
+      window.removeEventListener('focus', onFocus)
+      document.removeEventListener('visibilitychange', onVisibility)
+      supabase.removeChannel(channel)
+    }
+  }, [loadNotifs])
+
   // -- Event logging — portal_view_notifications (allowlisted) --
   useEffect(() => {
     if (loggedRef.current) return
