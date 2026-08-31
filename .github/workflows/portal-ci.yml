@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - feature/portal-p0-final
+      - feat/portal-leaderboard
   pull_request:
     branches:
       - main
