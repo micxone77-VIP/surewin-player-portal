@@ -1,8 +1,8 @@
-// SetPassword — one-time player account activation via Supabase recovery link.
+// SetPassword — one-time player account activation via a branded SureWin activation URL.
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { isRecoveryActivationUrl, parseRecoverySession, validateNewPassword } from '../lib/playerActivation'
+import { validateNewPassword } from '../lib/playerActivation'
 
 export default function SetPassword() {
   const navigate = useNavigate()
@@ -19,23 +19,29 @@ export default function SetPassword() {
   useEffect(() => {
     let mounted = true
     async function prepareRecoverySession() {
-      const recovery = parseRecoverySession(window.location.href)
-      if (!isRecoveryActivationUrl(window.location.href) || !recovery) {
+      const params = new URLSearchParams(window.location.search)
+      const tokenHash = params.get('token_hash')
+      const type = params.get('type')
+
+      if (!tokenHash || type !== 'recovery') {
         setError('This activation link is invalid or has expired. Please request a new link.')
         setChecking(false)
         return
       }
-      const { error: sessionError } = await supabase.auth.setSession({
-        access_token: recovery.access_token,
-        refresh_token: recovery.refresh_token,
+
+      const { error: verifyError } = await supabase.auth.verifyOtp({
+        token_hash: tokenHash,
+        type: 'recovery',
       })
-      if (sessionError) {
+
+      if (verifyError) {
         if (mounted) {
           setError('This activation link is invalid or has expired. Please request a new link.')
           setChecking(false)
         }
         return
       }
+
       window.history.replaceState({}, document.title, window.location.pathname)
       const { data: { session } } = await supabase.auth.getSession()
       if (!mounted) return
@@ -44,6 +50,7 @@ export default function SetPassword() {
         setChecking(false)
         return
       }
+
       const { data: isPlayer, error: playerError } = await supabase.rpc('is_player_auth')
       if (playerError || !isPlayer) {
         await supabase.auth.signOut()
@@ -51,9 +58,11 @@ export default function SetPassword() {
         setChecking(false)
         return
       }
+
       setReady(true)
       setChecking(false)
     }
+
     prepareRecoverySession().catch(() => {
       if (!mounted) return
       setError('Unable to prepare your activation session. Please request a new link.')
