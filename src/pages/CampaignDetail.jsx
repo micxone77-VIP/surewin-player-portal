@@ -80,13 +80,13 @@ export default function CampaignDetail() {
         supabase.rpc('get_my_campaign_progress', { p_campaign_id: id }),
       ])
 
-      // Campaign not found or RLS blocked — do not expose whether it exists for another player
-      if (campRes.error || !campRes.data) {
+      // Campaign not found, RLS blocked, or RPC returned an empty array.
+      // Never render with an undefined campaign object.
+      const campaign = Array.isArray(campRes.data) ? campRes.data[0] : campRes.data
+      if (campRes.error || !campaign) {
         navigate('/campaigns', { replace: true })
         return
       }
-
-      const campaign = Array.isArray(campRes.data) ? campRes.data[0] : campRes.data
       const levels   = levelsRes.data ?? []
       const prog     = progRes.data   ?? {}
       const levelIds = levels.map(l => l.id)

@@ -88,6 +88,7 @@ export default function Dashboard() {
       const { data: rawCampaigns, error: campErr } = await supabase
         .from('campaigns')
         .select('id, campaign_name, status, start_date, end_date, is_multi_level, offer_desc, campaign_type')
+        .in('status', ['active', 'upcoming', 'ended', 'paused'])
         .order('created_at', { ascending: false })
 
       if (campErr) throw campErr

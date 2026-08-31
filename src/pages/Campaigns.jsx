@@ -30,6 +30,7 @@ export default function Campaigns() {
       const { data, error: err } = await supabase
         .from('campaigns')
         .select(CAMPAIGN_SELECT)
+        .in('status', ['active', 'upcoming', 'ended', 'paused'])
         .order('created_at', { ascending: false })
       if (err) throw err
       setCampaigns(data ?? [])
