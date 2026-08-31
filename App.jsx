@@ -12,6 +12,7 @@ import Dashboard from './pages/Dashboard'
 import Campaigns from './pages/Campaigns'
 import CampaignDetail from './pages/CampaignDetail'
 import Leaderboard from './pages/Leaderboard'
+import LeaderboardCampaignRoute from './components/LeaderboardCampaignRoute'
 import Rewards from './pages/Rewards'
 import Notifications from './pages/Notifications'
 import Profile from './pages/Profile'
@@ -28,7 +29,7 @@ export default function App() {
           <Route element={<PortalRequireAuth><PortalLayout /></PortalRequireAuth>}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/campaigns" element={<Campaigns />} />
-            <Route path="/campaigns/:id" element={<CampaignDetail />} />
+            <Route path="/campaigns/:id" element={<LeaderboardCampaignRoute />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/rewards" element={<Rewards />} />
             <Route path="/notifications" element={<Notifications />} />
