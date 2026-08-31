@@ -1,0 +1,57 @@
+name: Apply campaign portal fix
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Patch campaign portal safety and draft visibility
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          detail = Path('src/pages/CampaignDetail.jsx')
+          text = detail.read_text()
+          old = """      // Campaign not found or RLS blocked — do not expose whether it exists for another player\n      if (campRes.error || !campRes.data) {\n        navigate('/campaigns', { replace: true })\n        return\n      }\n\n      const campaign = Array.isArray(campRes.data) ? campRes.data[0] : campRes.data\n"""
+          new = """      // Campaign not found, RLS blocked, or RPC returned an empty array.\n      // Never render with an undefined campaign object.\n      const campaign = Array.isArray(campRes.data) ? campRes.data[0] : campRes.data\n      if (campRes.error || !campaign) {\n        navigate('/campaigns', { replace: true })\n        return\n      }\n"""
+          if old not in text:
+              raise SystemExit('CampaignDetail patch target not found')
+          detail.write_text(text.replace(old, new, 1))
+
+          for name in ['src/pages/Dashboard.jsx', 'src/pages/Campaigns.jsx']:
+              path = Path(name)
+              text = path.read_text()
+              old = """        .select(CAMPAIGN_SELECT)\n        .order('created_at', { ascending: false })\n"""
+              new = """        .select(CAMPAIGN_SELECT)\n        .in('status', ['active', 'upcoming', 'ended', 'paused'])\n        .order('created_at', { ascending: false })\n"""
+              if old not in text:
+                  raise SystemExit(f'{name} patch target not found')
+              path.write_text(text.replace(old, new, 1))
+          PY
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run regression tests
+        run: node --test campaign-detail-regression.test.mjs reward-regression.test.mjs password-reset-regression.test.mjs portal-security-regression.test.mjs
+
+      - name: Build portal
+        run: npm run build
+
+      - name: Commit verified patch and remove temporary workflow
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          rm -f .github/workflows/apply-campaign-portal-fix.yml
+          git add src/pages/CampaignDetail.jsx src/pages/Dashboard.jsx src/pages/Campaigns.jsx .github/workflows/apply-campaign-portal-fix.yml
+          git commit -m 'fix: prevent campaign detail crash and hide drafts from player portal'
+          git push
