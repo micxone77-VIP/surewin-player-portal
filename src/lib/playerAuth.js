@@ -4,6 +4,20 @@
 
 import { PLAYER_AUTH_URL, PLAYER_FORGOT_PW_URL } from './supabase'
 
+async function readResponse(res) {
+  let body = {}
+  try {
+    body = await res.json()
+  } catch {
+    // Keep body empty if the function returned a non-JSON response.
+  }
+
+  return {
+    body,
+    errorCode: res.headers.get('sb-error-code') || '',
+  }
+}
+
 /**
  * Login player with username + password.
  */
@@ -21,23 +35,14 @@ export async function callPlayerAuth(username, password) {
         password,
       }),
     })
-  } catch (err) {
+  } catch {
     return {
       error: 'Network error. Please check your connection.',
       status: 0,
     }
   }
 
-  let body
-
-  try {
-    body = await res.json()
-  } catch {
-    return {
-      error: 'Unexpected response. Please try again.',
-      status: res.status,
-    }
-  }
+  const { body, errorCode } = await readResponse(res)
 
   if (res.status === 200 && body.session) {
     return {
@@ -55,10 +60,7 @@ export async function callPlayerAuth(username, password) {
 
   if (res.status === 429) {
     const retryAfter = res.headers.get('Retry-After')
-    const mins = retryAfter
-      ? Math.ceil(Number(retryAfter) / 60)
-      : 15
-
+    const mins = retryAfter ? Math.ceil(Number(retryAfter) / 60) : 15
     return {
       error: `Too many login attempts. Please try again in ${mins} minute${mins !== 1 ? 's' : ''}.`,
       status: 429,
@@ -66,8 +68,12 @@ export async function callPlayerAuth(username, password) {
   }
 
   return {
-    error: body?.error || 'Something went wrong. Please try again.',
+    error:
+      body?.error ||
+      body?.message ||
+      (errorCode ? `Authentication service error (${errorCode}). Please try again.` : 'Something went wrong. Please try again.'),
     status: res.status,
+    errorCode,
   }
 }
 
@@ -94,10 +100,6 @@ export async function callForgotPassword(username, email, newPassword = '') {
       body: JSON.stringify({
         username: username.trim().toLowerCase(),
         email: email.trim().toLowerCase(),
-
-        // IMPORTANT:
-        // Backend expects "new_password".
-        // Previously the frontend was not sending this field.
         ...(newPassword
           ? {
               action: 'reset_direct',
@@ -108,27 +110,20 @@ export async function callForgotPassword(username, email, newPassword = '') {
             }),
       }),
     })
-  } catch (err) {
+  } catch {
     return {
       error: 'Network error. Please check your connection.',
       status: 0,
     }
   }
 
-  let body = {}
-
-  try {
-    body = await res.json()
-  } catch {
-    // Keep body empty if response is not JSON.
-  }
+  const { body, errorCode } = await readResponse(res)
 
   if (res.status === 429) {
     return {
-      error:
-        body?.error ||
-        'Too many requests. Please try again later.',
+      error: body?.error || 'Too many requests. Please try again later.',
       status: 429,
+      errorCode,
     }
   }
 
@@ -136,12 +131,15 @@ export async function callForgotPassword(username, email, newPassword = '') {
     return {
       error:
         body?.error ||
-        'Unable to process password reset. Please try again.',
+        body?.message ||
+        (errorCode
+          ? `Password reset service error (${errorCode}). Please try again.`
+          : 'Unable to process password reset. Please try again.'),
       status: res.status,
+      errorCode,
     }
   }
 
-  // Verification step
   if (!newPassword) {
     if (body.verified || body.ok) {
       return {
@@ -154,10 +152,10 @@ export async function callForgotPassword(username, email, newPassword = '') {
     return {
       error: 'Unable to verify account. Please try again.',
       status: res.status,
+      errorCode,
     }
   }
 
-  // Direct password change
   if (body.success || body.ok) {
     return {
       ok: true,
@@ -167,9 +165,8 @@ export async function callForgotPassword(username, email, newPassword = '') {
   }
 
   return {
-    error:
-      body?.error ||
-      'Unable to change password. Please try again.',
+    error: body?.error || 'Unable to change password. Please try again.',
     status: res.status,
+    errorCode,
   }
 }
