@@ -10,7 +10,8 @@ import ForgotPassword from './pages/ForgotPassword'
 import SetPassword from './pages/SetPassword'
 import Dashboard from './pages/Dashboard'
 import Campaigns from './pages/Campaigns'
-import CampaignDetail from './pages/CampaignDetail'
+import CampaignDetailWithLeaderboard from './pages/CampaignDetailWithLeaderboard'
+import Leaderboard from './pages/Leaderboard'
 import Rewards from './pages/Rewards'
 import Notifications from './pages/Notifications'
 import Profile from './pages/Profile'
@@ -27,7 +28,8 @@ export default function App() {
           <Route element={<PortalRequireAuth><PortalLayout /></PortalRequireAuth>}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/campaigns" element={<Campaigns />} />
-            <Route path="/campaigns/:id" element={<CampaignDetail />} />
+            <Route path="/campaigns/:id" element={<CampaignDetailWithLeaderboard />} />
+            <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/rewards" element={<Rewards />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/profile" element={<Profile />} />
