@@ -5,10 +5,9 @@ import fs from 'node:fs'
 const pageSource = fs.readFileSync(new URL('./src/pages/Leaderboard.jsx', import.meta.url), 'utf8')
 const helperSource = fs.readFileSync(new URL('./src/lib/leaderboard.js', import.meta.url), 'utf8')
 
-
 test('leaderboard page consumes the CRM-selected metric configuration', () => {
   assert.match(pageSource, /leaderboard_metric/)
-  assert.match(pageSource, /turnover_deposit/)
+  assert.match(pageSource, /getLeaderboardMetricConfig/)
   assert.match(pageSource, /turnover_value/)
 })
 
