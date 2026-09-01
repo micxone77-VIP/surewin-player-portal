@@ -30,7 +30,7 @@ jobs:
         run: npm ci
 
       - name: Run regression tests
-        run: node --test portal-security-regression.test.mjs password-reset-regression.test.mjs leaderboard.test.mjs leaderboard-page-regression.test.mjs leaderboard-route-regression.test.mjs campaign-detail-leaderboard-regression.test.mjs
+        run: node --test portal-security-regression.test.mjs password-reset-regression.test.mjs leaderboard.test.mjs leaderboard-page-regression.test.mjs leaderboard-route-regression.test.mjs campaign-detail-leaderboard-regression.test.mjs leaderboard-metric-regression.test.mjs
 
       - name: Build production bundle
         run: npm run build
