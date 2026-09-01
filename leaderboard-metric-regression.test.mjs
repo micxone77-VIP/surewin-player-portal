@@ -8,13 +8,15 @@ const helperSource = fs.readFileSync(new URL('./src/lib/leaderboard.js', import.
 test('leaderboard page consumes the CRM-selected metric configuration', () => {
   assert.match(pageSource, /leaderboard_metric/)
   assert.match(pageSource, /getLeaderboardMetricConfig/)
-  assert.match(pageSource, /turnover_value/)
+  assert.match(pageSource, /getLeaderboardDisplayValues/)
 })
 
 test('leaderboard display has explicit turnover, deposit and mixed modes', () => {
   assert.match(helperSource, /turnover/)
   assert.match(helperSource, /deposit/)
   assert.match(helperSource, /turnover_deposit/)
+  assert.match(helperSource, /turnover_value/)
+  assert.match(helperSource, /deposit_value/)
 })
 
 test('leaderboard does not hardcode turnover as the only displayed metric', () => {
