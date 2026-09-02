@@ -1,0 +1,643 @@
+<title>SureWin VIP</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=Space+Mono:wght@700&display=swap">
+<style>
+:root{
+  --bg:#0C0B1D;--bg2:#10102A;--card:#141330;--card2:#1A1940;
+  --border:rgba(232,160,32,0.14);--bsub:rgba(255,255,255,0.07);
+  --or:#E8A020;--or2:#FFB940;--ordim:rgba(232,160,32,0.65);
+  --ograd:linear-gradient(135deg,#C07010,#FFB940);
+  --oglow:0 0 24px rgba(232,160,32,0.28);
+  --plat:#C8D8E8;--platb:rgba(200,216,232,0.14);--platbrd:rgba(200,216,232,0.28);
+  --diam:#60A8E0;--diamb:rgba(96,168,224,0.14);--diambrd:rgba(96,168,224,0.28);
+  --gold:#E8C060;--goldb:rgba(232,192,96,0.14);--goldbrd:rgba(232,192,96,0.28);
+  --green:#28D888;--amber:#F59820;--red:#F04848;
+  --text:#EEF0F8;--text2:#7A80A8;--text3:#3A3E60;
+  --r:14px;--rs:10px;
+}
+@media(prefers-color-scheme:light){:root:not([data-theme=dark]){
+  --bg:#F4F2FF;--bg2:#EAE8F8;--card:#FFF;--card2:#F2F0FC;
+  --border:rgba(160,88,0,0.2);--bsub:rgba(0,0,0,0.07);
+  --or:#C07010;--or2:#E09030;--ordim:rgba(192,112,16,0.65);
+  --ograd:linear-gradient(135deg,#A06008,#E09030);
+  --oglow:0 0 16px rgba(192,112,16,0.18);
+  --plat:#3A6090;--platb:rgba(58,96,144,0.1);--platbrd:rgba(58,96,144,0.2);
+  --diam:#1864B0;--diamb:rgba(24,100,176,0.1);--diambrd:rgba(24,100,176,0.2);
+  --gold:#906820;--goldb:rgba(144,104,32,0.1);--goldbrd:rgba(144,104,32,0.2);
+  --green:#0A9858;--amber:#C07808;--red:#C83030;
+  --text:#0E0C28;--text2:#5A5880;--text3:#A0A0C0;
+}}
+:root[data-theme=light]{
+  --bg:#F4F2FF;--bg2:#EAE8F8;--card:#FFF;--card2:#F2F0FC;
+  --border:rgba(160,88,0,0.2);--bsub:rgba(0,0,0,0.07);
+  --or:#C07010;--or2:#E09030;--ordim:rgba(192,112,16,0.65);
+  --ograd:linear-gradient(135deg,#A06008,#E09030);
+  --oglow:0 0 16px rgba(192,112,16,0.18);
+  --plat:#3A6090;--platb:rgba(58,96,144,0.1);--platbrd:rgba(58,96,144,0.2);
+  --diam:#1864B0;--diamb:rgba(24,100,176,0.1);--diambrd:rgba(24,100,176,0.2);
+  --gold:#906820;--goldb:rgba(144,104,32,0.1);--goldbrd:rgba(144,104,32,0.2);
+  --green:#0A9858;--amber:#C07808;--red:#C83030;
+  --text:#0E0C28;--text2:#5A5880;--text3:#A0A0C0;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;font-family:'Poppins',system-ui,sans-serif;background:var(--bg);color:var(--text);overflow:hidden;-webkit-font-smoothing:antialiased}
+.app{max-width:440px;margin:0 auto;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+.page{display:none;flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:76px}
+.page.active{display:block}
+.page::-webkit-scrollbar{width:2px}
+.page::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+/* NAV */
+.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:440px;height:62px;background:var(--bg2);border-top:1px solid var(--bsub);display:flex;align-items:stretch;z-index:100}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:none;border:none;cursor:pointer;color:var(--text3);font-family:inherit;position:relative;transition:color .2s}
+.nb.on{color:var(--or)}
+.nb.on::after{content:'';position:absolute;top:0;left:20%;right:20%;height:2px;background:var(--ograd);border-radius:0 0 3px 3px}
+.nb svg{width:20px;height:20px;flex-shrink:0}
+.nb span{font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.nbadge{position:absolute;top:5px;right:calc(50% - 22px);background:var(--red);color:#fff;font-size:8px;font-weight:800;min-width:14px;height:14px;border-radius:7px;display:flex;align-items:center;justify-content:center;padding:0 3px;border:2px solid var(--bg2)}
+
+/* LOGO STRIP */
+.logostrip{display:flex;align-items:center;justify-content:center;gap:10px;padding:16px 20px 8px}
+.wlogo{width:38px;height:38px;flex-shrink:0}
+.wlogo svg{width:38px;height:38px}
+.wordmark{font-size:20px;font-weight:900;letter-spacing:-.01em;color:#fff}
+.wordmark .dot{color:var(--or)}
+.wordmark .win{color:var(--or)}
+
+/* SHARED */
+.phead{padding:20px 20px 14px;border-bottom:1px solid var(--bsub)}
+.eyebrow{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--ordim);margin-bottom:3px}
+.ptitle{font-size:22px;font-weight:800;letter-spacing:-.02em;line-height:1.15;text-wrap:balance}
+.psub{font-size:12px;color:var(--text2);margin-top:3px;font-weight:500}
+.seclbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.seclbl::after{content:'';flex:1;height:1px;background:var(--bsub)}
+.card{background:var(--card);border:1px solid var(--bsub);border-radius:var(--r);overflow:hidden}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+.ba{background:rgba(40,216,136,.12);color:var(--green);border:1px solid rgba(40,216,136,.25)}
+.be{background:rgba(122,128,168,.1);color:var(--text2);border:1px solid rgba(122,128,168,.2)}
+.bp{background:var(--goldb);color:var(--gold);border:1px solid var(--goldbrd)}
+.tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:12px 20px}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex-shrink:0;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--bsub);background:transparent;color:var(--text2);font-family:inherit;transition:all .18s}
+.tab.on{background:rgba(232,160,32,.1);border-color:var(--border);color:var(--or)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 18px;border-radius:var(--rs);font-size:13px;font-weight:700;letter-spacing:.02em;cursor:pointer;border:none;font-family:inherit;transition:all .18s}
+.btng{background:var(--ograd);color:#0C0B1D;box-shadow:0 2px 12px rgba(232,160,32,.3)}
+.btng:hover{box-shadow:var(--oglow);transform:translateY(-1px)}
+.btno{background:transparent;border:1px solid var(--border);color:var(--or)}
+.btnsm{padding:7px 14px;font-size:12px}
+.prog{height:5px;background:var(--bsub);border-radius:3px;overflow:visible;position:relative}
+.progf{height:100%;background:var(--ograd);border-radius:3px;position:relative;max-width:100%}
+.progf::after{content:'';position:absolute;right:-4px;top:50%;transform:translateY(-50%);width:10px;height:10px;background:var(--or2);border-radius:50%;box-shadow:0 0 7px var(--or)}
+.px{padding-left:20px;padding-right:20px}
+.mt{margin-top:14px}
+.mt8{margin-top:8px}
+.hr{height:1px;background:var(--bsub)}
+/* tier pill helpers */
+.tplat{background:var(--platb);color:var(--plat);border:1px solid var(--platbrd)}
+.tdiam{background:var(--diamb);color:var(--diam);border:1px solid var(--diambrd)}
+.tgold{background:var(--goldb);color:var(--gold);border:1px solid var(--goldbrd)}
+
+/* HOME */
+.hhead{padding:20px 20px 16px;background:linear-gradient(180deg,rgba(232,160,32,.07) 0%,transparent 100%)}
+.htop{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+.hgreet{font-size:12px;color:var(--text2);margin-bottom:2px;font-weight:500}
+.hname{font-size:20px;font-weight:800;letter-spacing:-.02em}
+.htopright{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.nicobtn{position:relative;width:38px;height:38px;border-radius:12px;background:var(--card);border:1px solid var(--bsub);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);transition:all .18s}
+.nicobtn:hover{border-color:var(--border);color:var(--or)}
+.nrdot{position:absolute;top:6px;right:6px;width:7px;height:7px;background:var(--red);border-radius:50%;border:2px solid var(--bg)}
+.vippill{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;background:var(--platb);border:1px solid var(--platbrd);font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--plat)}
+.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:0 20px 18px}
+.stile{background:var(--card);border:1px solid var(--bsub);border-radius:var(--rs);padding:11px;text-align:center}
+.slbl{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:5px}
+.sval{font-size:12px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums}
+.sval.g{color:var(--or)}.sval.gr{color:var(--green);font-size:11px}
+
+/* CAMPAIGN CARD */
+.ccard{margin:0 20px 12px;background:var(--card);border:1px solid var(--bsub);border-radius:var(--r);overflow:hidden;transition:border-color .18s}
+.ccard:hover{border-color:var(--border)}
+.caccent{height:3px;background:var(--ograd)}
+.caccent.gr{background:linear-gradient(135deg,#0A9858,#28D888)}
+.cin{padding:16px}
+.crow{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:5px}
+.ctitle{font-size:14px;font-weight:700;line-height:1.35;flex:1}
+.cdate{font-size:11px;color:var(--text2);margin-bottom:14px;display:flex;align-items:center;gap:5px;font-weight:500}
+.cprog{background:var(--bg2);border-top:1px solid var(--bsub);padding:14px 16px}
+.cprogh{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.cprogc{font-size:22px;font-weight:800;color:var(--or);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.cprogm{font-size:13px;font-weight:600;color:var(--text2);font-variant-numeric:tabular-nums}
+.cprognote{font-size:11px;color:var(--text2);margin-top:6px;font-weight:500}
+.msbox{padding:12px 16px;border-top:1px solid var(--bsub)}
+.mslbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:6px}
+.msname{font-size:13px;font-weight:700;color:var(--text);margin-bottom:8px}
+.mstag{display:inline-flex;align-items:center;gap:5px;background:rgba(40,216,136,.08);border:1px solid rgba(40,216,136,.18);border-radius:8px;padding:5px 10px;font-size:12px;font-weight:700;color:var(--green);font-variant-numeric:tabular-nums}
+.lvbar{display:flex;align-items:center;padding:14px 16px}
+.lvdot{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--bsub);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--text3);background:var(--bg);flex-shrink:0}
+.lvdot.cur{border-color:var(--or);color:var(--or);background:rgba(232,160,32,.1);box-shadow:0 0 8px rgba(232,160,32,.2)}
+.lvline{flex:1;height:1.5px;background:var(--bsub);margin:0 2px}
+.lvnote{font-size:10px;color:var(--text3);text-align:center;padding:0 16px 12px;font-weight:500}
+
+/* LEADERBOARD */
+.lbanner{padding:20px 20px 0}
+.liverow{display:flex;align-items:center;justify-content:space-between;margin:10px 20px;padding:8px 14px;background:rgba(40,216,136,.05);border:1px solid rgba(40,216,136,.12);border-radius:10px}
+.livetag{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700;color:var(--green)}
+.ldot{width:7px;height:7px;background:var(--green);border-radius:50%;animation:blink 1.5s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+/* PODIUM — physical blocks */
+.podwrap{padding:0 16px 4px;display:flex;align-items:flex-end;gap:6px;height:220px}
+.pod{flex:1;display:flex;flex-direction:column;align-items:center;border-radius:12px 12px 0 0;position:relative;padding:14px 8px 12px}
+.pod.p1{background:linear-gradient(180deg,rgba(232,192,96,.18),rgba(232,192,96,.06));border:1px solid rgba(232,192,96,.3);border-bottom:none;height:180px}
+.pod.p2{background:linear-gradient(180deg,rgba(200,216,232,.12),rgba(200,216,232,.04));border:1px solid rgba(200,216,232,.2);border-bottom:none;height:140px}
+.pod.p3{background:linear-gradient(180deg,rgba(184,124,64,.1),rgba(184,124,64,.03));border:1px solid rgba(184,124,64,.18);border-bottom:none;height:110px}
+.pmed{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;margin-bottom:6px;flex-shrink:0}
+.p1 .pmed{background:linear-gradient(135deg,#C8A030,#FFD060);color:#0C0B1D;box-shadow:0 0 14px rgba(232,192,96,.4)}
+.p2 .pmed{background:linear-gradient(135deg,#8090A8,#C8D8E8);color:#0C0B1D}
+.p3 .pmed{background:linear-gradient(135deg,#8A6040,#C09060);color:#0C0B1D}
+.ppos{font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:4px}
+.pname{font-size:11px;font-weight:700;color:var(--text);text-align:center;word-break:break-all;line-height:1.2;margin-bottom:4px}
+.ptier{display:inline-block;padding:2px 7px;border-radius:8px;font-size:8px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
+.pamt{font-size:13px;font-weight:800;color:var(--or);font-variant-numeric:tabular-nums;letter-spacing:-.01em;text-align:center}
+.p1 .pamt{font-size:15px}
+.pamtl{font-size:7px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-top:1px;text-align:center}
+/* RANK ROWS */
+.ranksec{padding:0 20px 4px}
+.rankrow{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--card);border:1px solid var(--bsub);border-radius:var(--rs);margin-bottom:6px}
+.myrow{border-color:var(--border);background:rgba(232,160,32,.04)}
+.rankn{font-size:12px;font-weight:800;color:var(--text3);min-width:24px;font-variant-numeric:tabular-nums}
+.rankinfo{flex:1}
+.rankname{font-size:13px;font-weight:700}
+.ranktt{display:inline-block;padding:2px 7px;border-radius:7px;font-size:8px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-left:4px;vertical-align:middle}
+.rankr{text-align:right}
+.rankd{font-size:14px;font-weight:800;color:var(--or);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.rankdl{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3)}
+
+/* REWARDS */
+.rhead{padding:22px 20px 16px;border-bottom:1px solid var(--bsub)}
+.rtop{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px}
+.tbox{width:46px;height:46px;background:linear-gradient(135deg,rgba(232,160,32,.2),rgba(232,160,32,.06));border:1px solid rgba(232,160,32,.28);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px}
+.cgrp{padding:16px 20px 4px}
+.cgrph{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.cgrplbl{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ordim);margin-bottom:3px}
+.cgrpt{font-size:15px;font-weight:800;letter-spacing:-.01em}
+.cgrpm{font-size:11px;color:var(--text2);font-weight:500}
+.rcard{background:var(--card);border:1px solid var(--bsub);border-radius:var(--r);overflow:hidden;margin-bottom:10px}
+.rctop{padding:14px 16px 12px}
+.rch{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.rclv{font-size:11px;font-weight:600;color:var(--text2)}
+.rcamt{display:flex;align-items:baseline;gap:8px;margin-bottom:10px}
+.rcico{font-size:14px;align-self:center}
+.rcn{font-size:26px;font-weight:900;color:var(--or);font-variant-numeric:tabular-nums;line-height:1;letter-spacing:-.02em}
+.rctag{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:6px;background:rgba(232,160,32,.1);color:var(--ordim);border:1px solid rgba(232,160,32,.2);align-self:flex-end;margin-bottom:3px}
+.rccode{background:var(--bg2);border-top:1px solid var(--bsub);padding:12px 16px}
+.rccl{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:8px}
+.rccrow{display:flex;align-items:center;justify-content:space-between}
+.rccodet{font-family:'Space Mono','Courier New',monospace;font-size:20px;font-weight:700;letter-spacing:.1em;color:var(--text)}
+.copybtn{display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:8px;background:rgba(40,216,136,.08);border:1px solid rgba(40,216,136,.18);color:var(--green);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .18s}
+.copybtn:hover{background:rgba(40,216,136,.14)}
+.rcfoot{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-top:1px solid var(--bsub)}
+.rcdate{font-size:11px;color:var(--text2);font-weight:500}
+.cbnote{background:rgba(40,216,136,.06);border:1px solid rgba(40,216,136,.14);border-radius:8px;padding:9px 12px;font-size:12px;color:var(--green);display:flex;align-items:center;gap:6px;margin-bottom:10px;font-weight:600}
+
+/* ALERTS */
+.nlblrow{display:flex;align-items:center;gap:8px;margin-top:4px}
+.uchip{background:var(--red);color:#fff;font-size:10px;font-weight:800;padding:1px 7px;border-radius:10px;font-variant-numeric:tabular-nums}
+.sysnote{margin:0 20px 4px;padding:9px 12px;background:var(--card);border:1px solid var(--bsub);border-radius:10px;font-size:11px;color:var(--text2);display:flex;align-items:center;gap:7px;font-weight:500}
+.nitem{display:flex;gap:12px;padding:15px 20px;border-bottom:1px solid var(--bsub);position:relative}
+.nitem.unrd{background:rgba(232,160,32,.025)}
+.nitem.unrd::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2.5px;background:var(--ograd)}
+.nav2{width:38px;height:38px;border-radius:11px;background:var(--card2);border:1px solid var(--bsub);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.nbody{flex:1;min-width:0}
+.ntrow{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.nttl{font-size:13px;font-weight:700;line-height:1.3}
+.nudot{width:6px;height:6px;background:var(--or);border-radius:50%;flex-shrink:0}
+.ntxt{font-size:12px;color:var(--text2);line-height:1.55;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-weight:500}
+.nmeta{display:flex;align-items:center;justify-content:space-between}
+.ntime{font-size:10px;color:var(--text3);font-weight:500}
+.ncta{font-size:11px;font-weight:700;color:var(--or);cursor:pointer;background:none;border:none;font-family:inherit;padding:0}
+
+/* CAMPAIGNS LIST */
+.clcard{margin:0 20px 12px;background:var(--card);border:1px solid var(--bsub);border-radius:var(--r);overflow:hidden;transition:border-color .18s}
+.clcard:hover{border-color:var(--border)}
+.cltop{height:3px;background:var(--ograd)}
+.cltop.gr{background:linear-gradient(135deg,#0A9858,#28D888)}
+.clbody{padding:16px}
+.cley{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ordim);margin-bottom:5px}
+.clt{font-size:14px;font-weight:700;margin-bottom:8px;line-height:1.35}
+.tagrow{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.tag{padding:3px 9px;border-radius:6px;background:var(--bg2);border:1px solid var(--bsub);font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.05em}
+.gtag{background:rgba(232,160,32,.08);border-color:rgba(232,160,32,.16);color:var(--ordim)}
+.cldate{font-size:11px;color:var(--text2);display:flex;align-items:center;gap:5px;font-weight:500}
+.cldesc{font-size:12px;color:var(--text2);line-height:1.6;margin-top:8px;font-weight:500}
+.clfoot{padding:12px 16px;border-top:1px solid var(--bsub);display:flex;justify-content:flex-end;background:var(--bg2)}
+
+/* PROFILE */
+.phero{padding:30px 20px 22px;display:flex;flex-direction:column;align-items:center;text-align:center;background:linear-gradient(180deg,rgba(232,160,32,.07) 0%,transparent 80%);border-bottom:1px solid var(--bsub)}
+.avar{width:76px;height:76px;border-radius:50%;background:linear-gradient(135deg,rgba(232,160,32,.2),rgba(232,160,32,.06));border:2px solid var(--or);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;color:var(--or);margin-bottom:12px;box-shadow:0 0 22px rgba(232,160,32,.2),0 4px 20px rgba(0,0,0,.35)}
+.pname{font-size:20px;font-weight:800;letter-spacing:-.02em;margin-bottom:3px}
+.puname{font-size:13px;color:var(--text2);margin-bottom:12px;font-weight:500}
+.psec{padding:14px 0 0}
+.icard{margin:0 20px 12px;background:var(--card);border:1px solid var(--bsub);border-radius:var(--r);overflow:hidden}
+.ihead{padding:11px 16px;border-bottom:1px solid var(--bsub);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);display:flex;align-items:center;gap:7px}
+.irow{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--bsub)}
+.irow:last-child{border-bottom:none}
+.ilbl{font-size:13px;color:var(--text2);font-weight:500}
+.ival{font-size:13px;font-weight:700;color:var(--text);text-align:right}
+.ival.gr{color:var(--green)}.ival.g{color:var(--or)}
+.inote{padding:10px 16px;font-size:11px;color:var(--text2);line-height:1.6;border-top:1px solid var(--bsub);background:var(--bg2);font-weight:500}
+</style>
+
+<div class="app">
+
+<!-- HOME -->
+<div class="page active" id="pg-home">
+  <div class="logostrip">
+    <div class="wlogo">
+      <img src="data:image/png;base64,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" width="38" height="38" alt="sure.win" style="border-radius:50%;display:block">
+    </div>
+    <div class="wordmark">sure<span class="dot">.</span><span class="win">win</span></div>
+  </div>
+  <div class="hhead">
+    <div class="htop">
+      <div><div class="hgreet">Welcome back</div><div class="hname">Ong Choon Ming</div></div>
+      <div class="htopright">
+        <button class="nicobtn" onclick="go('alerts')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <div class="nrdot"></div>
+        </button>
+        <div class="vippill">◆ Platinum VIP</div>
+      </div>
+    </div>
+  </div>
+  <div class="stats">
+    <div class="stile"><div class="slbl">Username</div><div class="sval">miller14</div></div>
+    <div class="stile"><div class="slbl">Account</div><div class="sval gr">● Active</div></div>
+    <div class="stile"><div class="slbl">VIP Tier</div><div class="sval g">Platinum</div></div>
+  </div>
+  <div class="px mt"><div class="seclbl">Active Campaigns</div></div>
+
+  <div class="ccard">
+    <div class="caccent"></div>
+    <div class="cin">
+      <div class="crow"><div class="ctitle">Merdeka 2026 Deposit Reward</div><span class="badge be">Ended</span></div>
+      <div class="cdate"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>31 Aug 2026 – 31 Aug 2026</div>
+    </div>
+    <div class="cprog">
+      <div class="cprogh"><div class="cprogc">RM 0</div><div class="cprogm">RM 31K</div></div>
+      <div class="prog"><div class="progf" style="width:.5%"></div></div>
+      <div class="cprognote">RM 31K more to unlock</div>
+    </div>
+    <div class="msbox">
+      <div class="mslbl">Next Milestone</div>
+      <div class="msname">Code 31</div>
+      <div class="mstag">🎁 RM 1,388 credit</div>
+    </div>
+    <div class="lvbar">
+      <div class="lvdot cur">▶</div><div class="lvline"></div>
+      <div class="lvdot">2</div><div class="lvline"></div>
+      <div class="lvdot">3</div>
+    </div>
+    <div class="lvnote">0 / 3 levels completed</div>
+  </div>
+
+  <div class="ccard">
+    <div class="caccent gr"></div>
+    <div class="cin">
+      <div class="crow"><div class="ctitle">916 Deposit Race</div><span class="badge ba">● Active</span></div>
+      <div class="cdate"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>1 Sept 2026 – 16 Sept 2026</div>
+    </div>
+    <div class="cprog">
+      <div class="cprogh"><div class="cprogc">RM 0</div><div class="cprogm">RM 150K</div></div>
+      <div class="prog"><div class="progf" style="width:.5%"></div></div>
+      <div class="cprognote">RM 150K more to goal</div>
+    </div>
+  </div>
+  <div style="height:8px"></div>
+</div>
+
+<!-- CAMPAIGNS -->
+<div class="page" id="pg-campaigns">
+  <div class="phead">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between">
+      <div><div class="eyebrow">Your Campaigns</div><div class="ptitle">My Campaigns</div><div class="psub">Enrolled VIP campaigns</div></div>
+      <div style="font-size:24px;margin-top:4px">📋</div>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab on" onclick="stab(this)">Active <span style="opacity:.55">2</span></button>
+    <button class="tab" onclick="stab(this)">Upcoming <span style="opacity:.55">0</span></button>
+    <button class="tab" onclick="stab(this)">Ended <span style="opacity:.55">4</span></button>
+    <button class="tab" onclick="stab(this)">All <span style="opacity:.55">6</span></button>
+  </div>
+  <div class="clcard">
+    <div class="cltop gr"></div>
+    <div class="clbody">
+      <div class="cley">VIP Campaign · Active</div>
+      <div class="clt">916 Deposit Race</div>
+      <div class="tagrow"><span class="tag gtag">Deposit</span><span class="tag gtag">Leaderboard</span><span class="tag">Race</span></div>
+      <div class="cldate"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>1 Sept 2026 – 16 Sept 2026</div>
+      <div class="cldesc">Compete in the 916 Deposit Race and win big rewards. Top depositors claim the highest prizes in this exclusive leaderboard race.</div>
+    </div>
+    <div class="clfoot"><button class="btn btno btnsm" onclick="go('leaderboard')">View Leaderboard →</button></div>
+  </div>
+  <div class="clcard">
+    <div class="cltop"></div>
+    <div class="clbody">
+      <div class="cley">VIP Campaign · Ended</div>
+      <div class="clt">Merdeka 2026 Deposit Reward</div>
+      <div class="tagrow"><span class="tag">Deposit</span><span class="tag">Milestone</span><span class="tag">Code Reward</span></div>
+      <div class="cldate"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>31 Aug 2026 – 31 Aug 2026</div>
+      <div class="cldesc">Celebrate Merdeka with exclusive deposit rewards. Unlock code milestones to claim up to RM 8,888 in credits.</div>
+    </div>
+    <div class="clfoot"><button class="btn btno btnsm" onclick="go('rewards')">View Rewards →</button></div>
+  </div>
+  <div style="height:8px"></div>
+</div>
+
+<!-- LEADERBOARD -->
+<div class="page" id="pg-leaderboard">
+  <div class="lbanner">
+    <div class="eyebrow">916 Deposit Race</div>
+    <div class="ptitle">Leaderboard</div>
+    <div class="psub" style="margin-top:3px">1 Sept – 16 Sept 2026</div>
+  </div>
+  <div class="liverow">
+    <div class="livetag"><div class="ldot"></div>Live Rankings</div>
+    <div style="font-size:11px;font-weight:600;color:var(--text2)">Updated now</div>
+  </div>
+
+  <!-- Podium -->
+  <div class="podwrap">
+    <!-- 2nd -->
+    <div class="pod p2">
+      <div class="pmed">2</div>
+      <div class="pname">al*******g</div>
+      <div class="ptier tdiam">Diamond</div>
+      <div class="pamt">RM 980K</div>
+      <div class="pamtl">Deposited</div>
+    </div>
+    <!-- 1st -->
+    <div class="pod p1">
+      <div class="pmed">🏆</div>
+      <div class="pname">aj*****t</div>
+      <div class="ptier tplat">Platinum</div>
+      <div class="pamt">RM 2.1M</div>
+      <div class="pamtl">Deposited</div>
+    </div>
+    <!-- 3rd -->
+    <div class="pod p3">
+      <div class="pmed">3</div>
+      <div class="pname">al***0</div>
+      <div class="ptier tplat">Platinum</div>
+      <div class="pamt">RM 540K</div>
+      <div class="pamtl">Deposited</div>
+    </div>
+  </div>
+
+  <div class="ranksec" style="padding-top:10px">
+    <div class="rankrow">
+      <div class="rankn">#4</div>
+      <div class="rankinfo"><span class="rankname">li***8</span><span class="ranktt tgold">Gold</span></div>
+      <div class="rankr"><div class="rankd">RM 310K</div><div class="rankdl">Deposited</div></div>
+    </div>
+    <div class="rankrow">
+      <div class="rankn">#5</div>
+      <div class="rankinfo"><span class="rankname">ch***n</span><span class="ranktt tplat">Platinum</span></div>
+      <div class="rankr"><div class="rankd">RM 245K</div><div class="rankdl">Deposited</div></div>
+    </div>
+    <div class="rankrow">
+      <div class="rankn">#6</div>
+      <div class="rankinfo"><span class="rankname">wi***g</span><span class="ranktt tgold">Gold</span></div>
+      <div class="rankr"><div class="rankd">RM 188K</div><div class="rankdl">Deposited</div></div>
+    </div>
+    <div class="rankrow">
+      <div class="rankn">#7</div>
+      <div class="rankinfo"><span class="rankname">ta***n</span><span class="ranktt tplat">Platinum</span></div>
+      <div class="rankr"><div class="rankd">RM 156K</div><div class="rankdl">Deposited</div></div>
+    </div>
+    <!-- My rank -->
+    <div style="padding:8px 0 4px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3)">Your Standing</div>
+    <div class="rankrow myrow">
+      <div class="rankn" style="color:var(--or)">#—</div>
+      <div class="rankinfo"><span class="rankname" style="color:var(--or)">miller14</span><span class="ranktt tplat">Platinum</span></div>
+      <div class="rankr"><div class="rankd">RM 0</div><div class="rankdl">Deposited</div></div>
+    </div>
+  </div>
+  <div style="height:8px"></div>
+</div>
+
+<!-- REWARDS -->
+<div class="page" id="pg-rewards">
+  <div class="rhead">
+    <div class="rtop">
+      <div><div class="eyebrow">My Rewards</div><div class="ptitle">Reward History</div></div>
+      <div class="tbox">🎁</div>
+    </div>
+    <div class="psub">Merdeka 2026 Campaign rewards</div>
+  </div>
+
+  <div class="cgrp">
+    <div class="cgrph">
+      <div><div class="cgrplbl">Completed Campaign</div><div class="cgrpt">Merdeka 2026</div><div class="cgrpm">Deposit Reward · 31 Aug 2026</div></div>
+      <span class="badge be" style="align-self:flex-start">Ended</span>
+    </div>
+
+    <div class="cbnote">✓ Your pending rewards are being processed. Credits issued within 24 hours.</div>
+
+    <!-- Paid reward -->
+    <div class="rcard">
+      <div class="rctop">
+        <div class="rch"><div class="rclv">Level Complete · Paid Out</div><span class="badge ba">✓ Paid</span></div>
+        <div class="rcamt"><div class="rcn">RM 8,888</div><div class="rctag">Credit</div></div>
+        <div style="font-size:11px;color:var(--text2);font-weight:500">Deposited RM 150K+ and reached the top reward tier</div>
+      </div>
+      <div class="rcfoot">
+        <div class="rcdate">Paid 31 Aug 2026</div>
+        <span class="badge ba">✓ Completed</span>
+      </div>
+    </div>
+
+    <!-- Pending CODE31 -->
+    <div class="rcard">
+      <div class="rctop">
+        <div class="rch"><div class="rclv">Milestone Reward · Pending</div><span class="badge bp">⏳ Pending</span></div>
+        <div class="rcamt"><div class="rcn">RM 1,388</div><div class="rctag">Credit</div></div>
+        <div style="font-size:11px;color:var(--text2);font-weight:500">Code milestone reward unlocked</div>
+      </div>
+      <div class="rccode">
+        <div class="rccl">Redemption Code</div>
+        <div class="rccrow">
+          <div class="rccodet">CODE31</div>
+          <button class="copybtn" onclick="cp('CODE31',this)">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy
+          </button>
+        </div>
+      </div>
+      <div class="rcfoot">
+        <div class="rcdate">Pending · Processing</div>
+        <span class="badge bp">Awaiting Credit</span>
+      </div>
+    </div>
+
+    <!-- Pending RM3888 -->
+    <div class="rcard">
+      <div class="rctop">
+        <div class="rch"><div class="rclv">Bonus Reward · Pending</div><span class="badge bp">⏳ Pending</span></div>
+        <div class="rcamt"><div class="rcn">RM 3,888</div><div class="rctag">Credit</div></div>
+        <div style="font-size:11px;color:var(--text2);font-weight:500">VIP loyalty bonus for deposit milestone</div>
+      </div>
+      <div class="rcfoot">
+        <div class="rcdate">Pending · Processing</div>
+        <span class="badge bp">Awaiting Credit</span>
+      </div>
+    </div>
+  </div>
+  <div style="height:8px"></div>
+</div>
+
+<!-- ALERTS -->
+<div class="page" id="pg-alerts">
+  <div class="phead">
+    <div class="eyebrow">Notifications</div>
+    <div class="nlblrow"><div class="ptitle">Alerts</div><div class="uchip">5</div></div>
+    <div class="psub">Your latest updates &amp; announcements</div>
+  </div>
+  <div style="height:10px"></div>
+  <div class="sysnote">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--or)" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    Campaign "Merdeka 2026" has ended. Check your reward status.
+  </div>
+  <div style="height:6px"></div>
+
+  <div class="nitem unrd">
+    <div class="nav2">🏆</div>
+    <div class="nbody">
+      <div class="ntrow"><div class="nttl">Reward Unlocked: RM 8,888</div><div class="nudot"></div></div>
+      <div class="ntxt">Congratulations! Your RM 8,888 credit reward has been issued for completing the Merdeka 2026 top deposit tier.</div>
+      <div class="nmeta"><div class="ntime">31 Aug 2026 · 11:59 PM</div><button class="ncta" onclick="go('rewards')">View →</button></div>
+    </div>
+  </div>
+  <div class="nitem unrd">
+    <div class="nav2">🎁</div>
+    <div class="nbody">
+      <div class="ntrow"><div class="nttl">Reward Unlocked: RM 3,888</div><div class="nudot"></div></div>
+      <div class="ntxt">Your RM 3,888 VIP bonus reward is pending processing. Credits will be issued within 24 hours.</div>
+      <div class="nmeta"><div class="ntime">31 Aug 2026 · 11:58 PM</div><button class="ncta" onclick="go('rewards')">View →</button></div>
+    </div>
+  </div>
+  <div class="nitem unrd">
+    <div class="nav2">🏷️</div>
+    <div class="nbody">
+      <div class="ntrow"><div class="nttl">Code Reward: CODE31 (RM 1,388)</div><div class="nudot"></div></div>
+      <div class="ntxt">Your CODE31 milestone reward of RM 1,388 has been unlocked. Use the code to claim your credit.</div>
+      <div class="nmeta"><div class="ntime">31 Aug 2026 · 11:57 PM</div><button class="ncta" onclick="go('rewards')">Claim →</button></div>
+    </div>
+  </div>
+  <div class="nitem unrd">
+    <div class="nav2">📢</div>
+    <div class="nbody">
+      <div class="ntrow"><div class="nttl">Campaign Ended: Merdeka 2026</div><div class="nudot"></div></div>
+      <div class="ntxt">The Merdeka 2026 Deposit Reward campaign has ended. All eligible rewards are being processed.</div>
+      <div class="nmeta"><div class="ntime">31 Aug 2026 · 11:59 PM</div><button class="ncta" onclick="go('campaigns')">View →</button></div>
+    </div>
+  </div>
+  <div class="nitem unrd">
+    <div class="nav2">🚀</div>
+    <div class="nbody">
+      <div class="ntrow"><div class="nttl">New Campaign: 916 Deposit Race</div><div class="nudot"></div></div>
+      <div class="ntxt">The 916 Deposit Race is now live! Compete for the top of the leaderboard and win exclusive prizes.</div>
+      <div class="nmeta"><div class="ntime">1 Sept 2026 · 12:00 AM</div><button class="ncta" onclick="go('campaigns')">Join →</button></div>
+    </div>
+  </div>
+  <div style="height:8px"></div>
+</div>
+
+<!-- PROFILE -->
+<div class="page" id="pg-profile">
+  <div class="phero">
+    <div class="avar">O</div>
+    <div class="pname">Ong Choon Ming</div>
+    <div class="puname">@miller14</div>
+    <div class="badge tplat">◆ Platinum VIP</div>
+  </div>
+  <div class="psec">
+    <div class="icard">
+      <div class="ihead">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Account Info
+      </div>
+      <div class="irow"><div class="ilbl">Full Name</div><div class="ival">Ong Choon Ming</div></div>
+      <div class="irow"><div class="ilbl">Username</div><div class="ival">miller14</div></div>
+      <div class="irow"><div class="ilbl">Account Status</div><div class="ival gr">● Active</div></div>
+      <div class="irow"><div class="ilbl">VIP Tier</div><div class="ival g">Platinum</div></div>
+      <div class="irow"><div class="ilbl">Member Since</div><div class="ival">2023</div></div>
+    </div>
+    <div class="icard">
+      <div class="ihead">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Rewards Summary
+      </div>
+      <div class="irow"><div class="ilbl">Paid Credits</div><div class="ival g">RM 8,888</div></div>
+      <div class="irow"><div class="ilbl">Pending Credits</div><div class="ival" style="color:var(--amber)">RM 5,276</div></div>
+      <div class="irow"><div class="ilbl">Total Campaigns</div><div class="ival">6</div></div>
+      <div class="irow"><div class="ilbl">Active Campaigns</div><div class="ival gr">2</div></div>
+    </div>
+    <div class="icard">
+      <div class="ihead">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>VIP Status
+      </div>
+      <div class="irow"><div class="ilbl">Current Tier</div><div class="ival"><span class="badge tplat" style="font-size:10px">◆ Platinum</span></div></div>
+      <div class="irow"><div class="ilbl">Tier Benefits</div><div class="ival gr">Active</div></div>
+      <div class="inote">Platinum VIP members enjoy priority campaign access, exclusive reward multipliers, and dedicated support.</div>
+    </div>
+  </div>
+  <div style="height:8px"></div>
+</div>
+
+<!-- NAV BAR -->
+<nav class="bnav">
+  <button class="nb on" id="nb-home" onclick="go('home')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <span>Home</span>
+  </button>
+  <button class="nb" id="nb-campaigns" onclick="go('campaigns')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+    <span>Campaigns</span>
+  </button>
+  <button class="nb" id="nb-leaderboard" onclick="go('leaderboard')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    <span>Rank</span>
+  </button>
+  <button class="nb" id="nb-rewards" onclick="go('rewards')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+    <span>Rewards</span>
+  </button>
+  <button class="nb" id="nb-alerts" onclick="go('alerts')">
+    <div class="nbadge">5</div>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+    <span>Alerts</span>
+  </button>
+  <button class="nb" id="nb-profile" onclick="go('profile')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <span>Profile</span>
+  </button>
+</nav>
+
+</div>
+
+<script>
+function go(n){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  document.getElementById('pg-'+n).classList.add('active');
+  var nb=document.getElementById('nb-'+n);
+  if(nb)nb.classList.add('on');
+}
+function stab(el){
+  el.closest('.tabs').querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+}
+function cp(code,btn){
+  navigator.clipboard.writeText(code).then(()=>{
+    var t=btn.textContent;btn.textContent='Copied!';
+    setTimeout(()=>btn.textContent=t,1800);
+  });
+}
+</script>

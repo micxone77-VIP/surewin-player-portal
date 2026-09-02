@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "mkdir -p dist && cp surewin-portal.html dist/index.html && cp public/_redirects dist/_redirects",
     "preview": "vite preview",
     "lint": "eslint src --ext .js,.jsx"
   },
