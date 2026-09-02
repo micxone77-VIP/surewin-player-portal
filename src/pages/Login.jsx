@@ -181,7 +181,7 @@ const styles = {
     width: '360px',
     height: '360px',
     borderRadius: '50%',
-    background: 'radial-gradient(circle, rgba(201,166,72,.08) 0%, transparent 70%)',
+    background: 'radial-gradient(circle, rgba(232,160,32,.10) 0%, transparent 70%)',
     pointerEvents: 'none',
   },
   bgCircle2: {
@@ -191,7 +191,7 @@ const styles = {
     width: '280px',
     height: '280px',
     borderRadius: '50%',
-    background: 'radial-gradient(circle, rgba(59,130,246,.06) 0%, transparent 70%)',
+    background: 'radial-gradient(circle, rgba(96,168,224,.08) 0%, transparent 70%)',
     pointerEvents: 'none',
   },
   container: {
@@ -240,7 +240,7 @@ const styles = {
     border: '1px solid var(--border)',
     borderRadius: 'var(--rl)',
     overflow: 'hidden',
-    boxShadow: '0 20px 60px rgba(0,0,0,.4), 0 0 0 1px rgba(201,166,72,.08)',
+    boxShadow: '0 20px 60px rgba(0,0,0,.4), 0 0 0 1px rgba(232,160,32,.10)',
   },
   cardBar: {
     height: '3px',
