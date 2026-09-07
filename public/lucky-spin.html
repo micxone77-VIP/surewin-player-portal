@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SureWin Lucky Spin</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  /* ── SureWin Brand ─────────────────────────────────────── */
+  :root {
+    --navy:    #0d1b2e;
+    --navy2:   #0a1628;
+    --orange:  #FF6B00;
+    --orange2: #FF8C00;
+    --cyan:    #00d4ff;
+    --white:   #ffffff;
+    --gold:    #f5c842;
+    --card:    #0f2035;
+    --border:  rgba(255,107,0,0.25);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--navy);
+    color: var(--white);
+    font-family: 'Segoe UI', -apple-system, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ── Language Bar ──────────────────────────────────────── */
+  #lang-bar {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+    padding: 12px 20px;
+    background: var(--navy2);
+    border-bottom: 1px solid var(--border);
+  }
+  .lang-btn {
+    padding: 4px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: #aaa;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all .2s;
+  }
+  .lang-btn.active, .lang-btn:hover {
+    background: var(--orange);
+    color: #fff;
+    border-color: var(--orange);
+  }
+
+  /* ── Header ────────────────────────────────────────────── */
+  #header {
+    text-align: center;
+    padding: 24px 20px 8px;
+  }
+  #header img { height: 48px; margin-bottom: 8px; }
+  #campaign-name {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--orange);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  #campaign-subtitle {
+    font-size: 13px;
+    color: #8aa;
+    margin-top: 4px;
+  }
+
+  /* ── Main Container ────────────────────────────────────── */
+  #main {
+    width: 100%;
+    max-width: 520px;
+    padding: 16px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  /* ── Spin Wheel ────────────────────────────────────────── */
+  #wheel-wrap {
+    position: relative;
+    width: 320px;
+    height: 320px;
+    flex-shrink: 0;
+  }
+  #wheel-canvas {
+    width: 320px;
+    height: 320px;
+    border-radius: 50%;
+    box-shadow: 0 0 40px rgba(255,107,0,0.3), 0 0 0 4px var(--orange);
+  }
+  #wheel-pointer {
+    position: absolute;
+    top: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 14px solid transparent;
+    border-right: 14px solid transparent;
+    border-top: 28px solid var(--orange);
+    filter: drop-shadow(0 2px 6px rgba(255,107,0,0.8));
+    z-index: 10;
+  }
+  #wheel-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    width: 56px;
+    height: 56px;
+    background: radial-gradient(circle, #fff 0%, #f5c842 60%, #e0a800 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 11px;
+    color: var(--navy);
+    cursor: pointer;
+    box-shadow: 0 0 20px rgba(245,200,66,0.6);
+    z-index: 10;
+    letter-spacing: 0.5px;
+    user-select: none;
+    transition: transform .1s;
+  }
+  #wheel-center:hover { transform: translate(-50%,-50%) scale(1.05); }
+  #wheel-center:active { transform: translate(-50%,-50%) scale(0.97); }
+
+  /* ── Login Form ────────────────────────────────────────── */
+  #login-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .sw-input {
+    width: 100%;
+    padding: 13px 16px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    background: var(--card);
+    color: var(--white);
+    font-size: 15px;
+    outline: none;
+    transition: border-color .2s;
+  }
+  .sw-input:focus { border-color: var(--orange); }
+  .sw-input::placeholder { color: #456; }
+  .sw-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 10px;
+    border: none;
+    background: linear-gradient(135deg, var(--orange), var(--orange2));
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: opacity .2s, transform .1s;
+    box-shadow: 0 4px 16px rgba(255,107,0,0.4);
+  }
+  .sw-btn:hover { opacity: .9; }
+  .sw-btn:active { transform: scale(.98); }
+  .sw-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+  /* ── Status Message ────────────────────────────────────── */
+  #status-msg {
+    font-size: 13px;
+    text-align: center;
+    padding: 8px 16px;
+    border-radius: 8px;
+    display: none;
+  }
+  #status-msg.error { background: rgba(220,50,50,.15); color: #ff7070; border: 1px solid rgba(220,50,50,.3); display: block; }
+  #status-msg.success { background: rgba(0,200,100,.1); color: #50e090; border: 1px solid rgba(0,200,100,.25); display: block; }
+  #status-msg.info { background: rgba(0,180,255,.1); color: #60d0ff; border: 1px solid rgba(0,180,255,.25); display: block; }
+
+  /* ── Player Info Bar ───────────────────────────────────── */
+  #player-bar {
+    display: none;
+    width: 100%;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 14px;
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+  }
+  #player-bar.show { display: flex; }
+  #player-name-display { color: var(--orange); font-weight: 700; }
+  #logout-btn {
+    background: none;
+    border: 1px solid #446;
+    color: #889;
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  #logout-btn:hover { color: #ff7070; border-color: #ff7070; }
+
+  /* ── Win History ───────────────────────────────────────── */
+  #history-section {
+    width: 100%;
+    display: none;
+  }
+  #history-section.show { display: block; }
+  #history-title {
+    font-size: 14px;
+    color: #889;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .history-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+  }
+  .history-prize { font-weight: 700; color: var(--orange); }
+  .history-date { color: #778; font-size: 12px; }
+  .history-status {
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .status-pending    { background: rgba(255,180,0,.15); color: #ffcc44; }
+  .status-processing { background: rgba(0,180,255,.15); color: #60d0ff; }
+  .status-completed  { background: rgba(0,200,100,.15); color: #50e090; }
+  .status-cancelled  { background: rgba(200,50,50,.15); color: #ff7070; }
+
+  /* ── Prize Popup Overlay ───────────────────────────────── */
+  #overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.75);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  #overlay.show { display: flex; }
+  #popup {
+    background: var(--card);
+    border: 2px solid var(--orange);
+    border-radius: 20px;
+    padding: 32px 24px;
+    max-width: 380px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 0 60px rgba(255,107,0,.4);
+    animation: popIn .4s cubic-bezier(.175,.885,.32,1.275);
+  }
+  @keyframes popIn {
+    from { transform: scale(.6); opacity: 0; }
+    to   { transform: scale(1);  opacity: 1; }
+  }
+  #popup-icon { font-size: 56px; margin-bottom: 12px; }
+  #popup-title { font-size: 18px; color: #aaa; margin-bottom: 4px; }
+  #popup-prize {
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--orange);
+    margin-bottom: 8px;
+    text-shadow: 0 0 20px rgba(255,107,0,.5);
+  }
+  #popup-subtitle { font-size: 14px; color: #aaa; margin-bottom: 6px; }
+  #popup-msg {
+    font-size: 13px;
+    color: #778;
+    background: rgba(255,107,0,.07);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin: 14px 0;
+    line-height: 1.5;
+  }
+  #popup-close {
+    margin-top: 4px;
+    padding: 12px 32px;
+    border-radius: 10px;
+    border: none;
+    background: linear-gradient(135deg, var(--orange), var(--orange2));
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 1px;
+  }
+  #popup-close:hover { opacity: .9; }
+
+  /* ── Address Form (for physical prizes) ───────────────── */
+  #address-form {
+    display: none;
+    margin: 12px 0;
+    gap: 8px;
+    flex-direction: column;
+  }
+  #address-form.show { display: flex; }
+  #address-form input {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,.05);
+    color: #fff;
+    font-size: 13px;
+    outline: none;
+  }
+  #address-form input:focus { border-color: var(--orange); }
+
+  /* ── Footer ────────────────────────────────────────────── */
+  #footer {
+    padding: 20px;
+    text-align: center;
+    font-size: 11px;
+    color: #446;
+    border-top: 1px solid var(--border);
+    width: 100%;
+    margin-top: auto;
+  }
+</style>
+</head>
+<body>
+
+<!-- Language Bar -->
+<div id="lang-bar">
+  <button class="lang-btn active" onclick="setLang('zh')">中文</button>
+  <button class="lang-btn" onclick="setLang('en')">EN</button>
+  <button class="lang-btn" onclick="setLang('bm')">BM</button>
+</div>
+
+<!-- Header -->
+<div id="header">
+  <div id="campaign-name">🎯 Lucky Spin</div>
+  <div id="campaign-subtitle" data-key="subtitle">Spin to Win Exclusive Prizes</div>
+</div>
+
+<div id="main">
+
+  <!-- Player Bar (shown after login) -->
+  <div id="player-bar">
+    <span>👤 <span id="player-name-display"></span></span>
+    <button id="logout-btn" onclick="logout()" data-key="logout">Logout</button>
+  </div>
+
+  <!-- Spin Wheel -->
+  <div id="wheel-wrap">
+    <div id="wheel-pointer"></div>
+    <canvas id="wheel-canvas" width="320" height="320"></canvas>
+    <div id="wheel-center" onclick="triggerSpin()">SPIN</div>
+  </div>
+
+  <!-- Status Message -->
+  <div id="status-msg"></div>
+
+  <!-- Login Form (shown when not logged in) -->
+  <div id="login-form">
+    <input class="sw-input" id="input-username" type="text" data-placeholder-key="username_placeholder" placeholder="SureWin Username">
+    <input class="sw-input" id="input-code" type="text" data-placeholder-key="code_placeholder" placeholder="Redemption Code" style="text-transform:uppercase">
+    <button class="sw-btn" id="spin-btn" onclick="handleSpin()" data-key="spin_btn">SPIN NOW</button>
+  </div>
+
+  <!-- Win History (shown after login) -->
+  <div id="history-section">
+    <div id="history-title" data-key="history_title">My Spin History</div>
+    <div id="history-list"></div>
+  </div>
+
+</div>
+
+<!-- Prize Popup -->
+<div id="overlay">
+  <div id="popup">
+    <div id="popup-icon">🎉</div>
+    <div id="popup-title" data-key="congrats">Congratulations!</div>
+    <div id="popup-prize"></div>
+    <div id="popup-subtitle"></div>
+    <div id="popup-msg"></div>
+    <!-- Address form for physical prizes -->
+    <div id="address-form">
+      <input id="addr-name"    type="text" placeholder="Full Name / 姓名">
+      <input id="addr-phone"   type="text" placeholder="Phone / 电话">
+      <input id="addr-address" type="text" placeholder="Delivery Address / 送货地址">
+    </div>
+    <button id="popup-close" onclick="closePopup()" data-key="close_btn">OK, Got It!</button>
+  </div>
+</div>
+
+<div id="footer">© 2026 SureWin · VIP Campaign System</div>
+
+<script>
+// ── CONFIG ───────────────────────────────────────────────────
+const SUPABASE_URL  = 'https://utopskwciorvooronpwg.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV0b3Bza3djaW9ydm9vcm9ucHdnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwODk3NzYsImV4cCI6MjA5NDY2NTc3Nn0.5ksuyfbIzWAhyucwXcNUM1HTOIVmpOQwxuxKLGgNzUo'; 
+const CAMPAIGN_ID   = '7b61bda0-37a1-4212-9b44-1f307b6e114e';
+// ── I18N ─────────────────────────────────────────────────────
+const i18n = {
+  zh: {
+    subtitle: '旋转赢取专属奖品',
+    username_placeholder: 'SureWin 用户名',
+    code_placeholder: '兑换码',
+    spin_btn: '立即旋转',
+    logout: '退出',
+    history_title: '我的旋转记录',
+    congrats: '恭喜您！',
+    close_btn: '好的，明白了！',
+    err_fill: '请填写用户名和兑换码',
+    err_invalid_code: '兑换码无效或已使用',
+    err_wrong_user: '此兑换码不属于您的账号',
+    err_used_up: '兑换码已达使用上限',
+    err_campaign_ended: '活动已结束',
+    err_generic: '发生错误，请稍后再试',
+    status_pending: '待处理',
+    status_processing: '处理中',
+    status_completed: '已完成',
+    status_cancelled: '已取消',
+  },
+  en: {
+    subtitle: 'Spin to Win Exclusive Prizes',
+    username_placeholder: 'SureWin Username',
+    code_placeholder: 'Redemption Code',
+    spin_btn: 'SPIN NOW',
+    logout: 'Logout',
+    history_title: 'My Spin History',
+    congrats: 'Congratulations!',
+    close_btn: 'OK, Got It!',
+    err_fill: 'Please enter your username and redemption code',
+    err_invalid_code: 'Invalid or already used redemption code',
+    err_wrong_user: 'This code does not belong to your account',
+    err_used_up: 'This code has reached its usage limit',
+    err_campaign_ended: 'Campaign has ended',
+    err_generic: 'An error occurred. Please try again.',
+    status_pending: 'Pending',
+    status_processing: 'Processing',
+    status_completed: 'Completed',
+    status_cancelled: 'Cancelled',
+  },
+  bm: {
+    subtitle: 'Putar untuk Memenangi Hadiah Eksklusif',
+    username_placeholder: 'Nama Pengguna SureWin',
+    code_placeholder: 'Kod Penebusan',
+    spin_btn: 'PUTAR SEKARANG',
+    logout: 'Log Keluar',
+    history_title: 'Rekod Putaran Saya',
+    congrats: 'Tahniah!',
+    close_btn: 'OK, Faham!',
+    err_fill: 'Sila masukkan nama pengguna dan kod penebusan',
+    err_invalid_code: 'Kod penebusan tidak sah atau telah digunakan',
+    err_wrong_user: 'Kod ini bukan milik akaun anda',
+    err_used_up: 'Kod ini telah mencapai had penggunaan',
+    err_campaign_ended: 'Kempen telah tamat',
+    err_generic: 'Ralat berlaku. Sila cuba lagi.',
+    status_pending: 'Menunggu',
+    status_processing: 'Sedang Diproses',
+    status_completed: 'Selesai',
+    status_cancelled: 'Dibatalkan',
+  }
+};
+
+let lang = 'en';
+let prizes = [];
+let spinning = false;
+let currentAngle = 0;
+let loggedInUser = null;
+let validCode = null;
+
+// ── Supabase ─────────────────────────────────────────────────
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+// ── Language ──────────────────────────────────────────────────
+function setLang(l) {
+  lang = l;
+  document.querySelectorAll('.lang-btn').forEach((b,i) => {
+    b.classList.toggle('active', ['zh','en','bm'][i] === l);
+  });
+  applyI18n();
+}
+
+function t(key) { return (i18n[lang] || i18n.en)[key] || key; }
+
+function applyI18n() {
+  document.querySelectorAll('[data-key]').forEach(el => {
+    el.textContent = t(el.dataset.key);
+  });
+  document.querySelectorAll('[data-placeholder-key]').forEach(el => {
+    el.placeholder = t(el.dataset.placeholderKey);
+  });
+  if (prizes.length) drawWheel();
+}
+
+// ── Status Messages ───────────────────────────────────────────
+function showMsg(msg, type='info') {
+  const el = document.getElementById('status-msg');
+  el.textContent = msg;
+  el.className = type;
+}
+function clearMsg() {
+  const el = document.getElementById('status-msg');
+  el.className = '';
+  el.textContent = '';
+}
+
+// ── Init ─────────────────────────────────────────────────────
+async function init() {
+  await loadPrizes();
+  applyI18n();
+  const saved = sessionStorage.getItem('sw_user');
+  if (saved) {
+    loggedInUser = saved;
+    showPlayerState();
+    loadHistory();
+  }
+}
+
+// ── Load Prizes from Supabase ─────────────────────────────────
+async function loadPrizes() {
+  const { data, error } = await sb
+    .from('vip_campaign_prizes')
+    .select('*')
+    .eq('campaign_id', CAMPAIGN_ID)
+    .eq('is_active', true)
+    .order('sort_order');
+
+  if (error || !data || data.length === 0) {
+    // Fallback demo prizes for testing
+    prizes = [
+      { id:'1', name_en:'RM 888', name_zh:'RM 888 奖金', name_bm:'Kredit RM 888', prize_value:'RM 888', color:'#FF6B00', probability:1, turnover_multiplier:3, popup_text_en:'Your prize RM 888 is locked. Complete 3x turnover to withdraw.', popup_text_zh:'奖金 RM 888 已锁定，需完成 3x Turnover 后方可提款。', popup_text_bm:'Hadiah RM 888 dikunci. Lengkapkan turnover 3x.', requires_address:false },
+      { id:'2', name_en:'RM 288', name_zh:'RM 288 奖金', name_bm:'Kredit RM 288', prize_value:'RM 288', color:'#FF8C00', probability:20, turnover_multiplier:3, popup_text_en:'Your prize RM 288 is locked. Complete 3x turnover to withdraw.', popup_text_zh:'奖金 RM 288 已锁定。', popup_text_bm:'Hadiah RM 288 dikunci.', requires_address:false },
+      { id:'3', name_en:'RM 168', name_zh:'RM 168 奖金', name_bm:'Kredit RM 168', prize_value:'RM 168', color:'#E55A00', probability:60, turnover_multiplier:3, popup_text_en:'Your prize RM 168 is locked. Complete 3x turnover to withdraw.', popup_text_zh:'奖金 RM 168 已锁定。', popup_text_bm:'Hadiah RM 168 dikunci.', requires_address:false },
+      { id:'4', name_en:'8% Cashback', name_zh:'8% 回水', name_bm:'8% Cashback', prize_value:'8%', color:'#FF6B00', probability:1, turnover_multiplier:0, popup_text_en:'8% cashback credited to your account.', popup_text_zh:'8% 回水已存入账户。', popup_text_bm:'8% cashback dikreditkan.', requires_address:false },
+      { id:'5', name_en:'3% Cashback', name_zh:'3% 回水', name_bm:'3% Cashback', prize_value:'3%', color:'#CC5500', probability:10, turnover_multiplier:0, popup_text_en:'3% cashback credited to your account.', popup_text_zh:'3% 回水已存入账户。', popup_text_bm:'3% cashback dikreditkan.', requires_address:false },
+      { id:'6', name_en:'iPhone 17', name_zh:'iPhone 17', name_bm:'iPhone 17', prize_value:'iPhone 17 Pro', color:'#FF6B00', probability:1, turnover_multiplier:0, popup_text_en:'You won an iPhone 17! We will contact you.', popup_text_zh:'恭喜赢得 iPhone 17！我们将联系您。', popup_text_bm:'Anda memenangi iPhone 17!', requires_address:true },
+      { id:'7', name_en:'AirPods Pro', name_zh:'AirPods Pro', name_bm:'AirPods Pro', prize_value:'AirPods Pro 2', color:'#FF8C00', probability:2, turnover_multiplier:0, popup_text_en:'You won AirPods Pro 2!', popup_text_zh:'恭喜赢得 AirPods Pro 2！', popup_text_bm:'Anda memenangi AirPods Pro 2!', requires_address:true },
+      { id:'8', name_en:'Fuel Voucher', name_zh:'燃油券', name_bm:'Baucar Minyak', prize_value:'Fuel Voucher', color:'#CC5500', probability:10, turnover_multiplier:0, popup_text_en:'You won a Fuel Voucher!', popup_text_zh:'恭喜获得燃油券！', popup_text_bm:'Anda memenangi Baucar Minyak!', requires_address:false },
+    ];
+  } else {
+    prizes = data;
+  }
+  drawWheel();
+}
+
+// ── Draw Wheel ────────────────────────────────────────────────
+function drawWheel(rotation = 0) {
+  const canvas = document.getElementById('wheel-canvas');
+  const ctx = canvas.getContext('2d');
+  const cx = canvas.width / 2;
+  const cy = canvas.height / 2;
+  const r = cx - 6;
+  const total = prizes.reduce((s, p) => s + (p.probability || 1), 0);
+  let startAngle = rotation;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  prizes.forEach((prize, i) => {
+    const slice = ((prize.probability || 1) / total) * Math.PI * 2;
+    const endAngle = startAngle + slice;
+    const mid = startAngle + slice / 2;
+
+    // Slice
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, startAngle, endAngle);
+    ctx.closePath();
+    const colors = ['#0f2a48','#0d2240','#0a1e38','#0c2444'];
+    ctx.fillStyle = colors[i % colors.length];
+    ctx.fill();
+    ctx.strokeStyle = prize.color || '#FF6B00';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Coloured outer arc
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, startAngle, endAngle);
+    ctx.strokeStyle = prize.color || '#FF6B00';
+    ctx.lineWidth = 6;
+    ctx.stroke();
+
+    // Text
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(mid);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 12px Segoe UI, sans-serif';
+    const name = prize['name_' + lang] || prize.name_en || prize.prize_value || '';
+    const shortName = name.length > 12 ? name.substring(0, 11) + '…' : name;
+    ctx.fillText(shortName, r - 10, 4);
+    ctx.restore();
+
+    startAngle = endAngle;
+  });
+
+  // Center circle
+  ctx.beginPath();
+  ctx.arc(cx, cy, 28, 0, Math.PI * 2);
+  const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, 28);
+  grad.addColorStop(0, '#fff');
+  grad.addColorStop(0.6, '#f5c842');
+  grad.addColorStop(1, '#e0a800');
+  ctx.fillStyle = grad;
+  ctx.fill();
+}
+
+// ── Pick Winner (weighted random) ────────────────────────────
+function pickWinner() {
+  const total = prizes.reduce((s, p) => s + (p.probability || 1), 0);
+  let r = Math.random() * total;
+  for (let i = 0; i < prizes.length; i++) {
+    r -= prizes[i].probability || 1;
+    if (r <= 0) return i;
+  }
+  return prizes.length - 1;
+}
+
+// ── Spin Animation ────────────────────────────────────────────
+function spinToIndex(winnerIdx, onDone) {
+  const total = prizes.reduce((s, p) => s + (p.probability || 1), 0);
+  let sliceStart = 0;
+  for (let i = 0; i < winnerIdx; i++) sliceStart += (prizes[i].probability || 1) / total * Math.PI * 2;
+  const sliceMid = sliceStart + ((prizes[winnerIdx].probability || 1) / total * Math.PI * 2) / 2;
+
+  // We want the pointer (top = -π/2) to point at sliceMid
+  // Target rotation so that: sliceMid + rotation ≡ -π/2 (mod 2π)
+  const targetSlice = -Math.PI / 2 - sliceMid;
+  const spins = 6 + Math.random() * 4; // 6–10 full spins
+  const targetAngle = currentAngle - (currentAngle % (Math.PI * 2)) + Math.PI * 2 * spins + targetSlice;
+
+  const duration = 4000 + Math.random() * 1000;
+  const startTime = performance.now();
+  const startAngle = currentAngle;
+
+  function easeOut(t) { return 1 - Math.pow(1 - t, 4); }
+
+  function frame(now) {
+    const progress = Math.min((now - startTime) / duration, 1);
+    const angle = startAngle + (targetAngle - startAngle) * easeOut(progress);
+    currentAngle = angle;
+    drawWheel(angle);
+    if (progress < 1) {
+      requestAnimationFrame(frame);
+    } else {
+      onDone();
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
+// ── Handle Spin (Login + Spin) ────────────────────────────────
+async function handleSpin() {
+  const username = document.getElementById('input-username').value.trim();
+  const code     = document.getElementById('input-code').value.trim().toUpperCase();
+
+  if (!username || !code) { showMsg(t('err_fill'), 'error'); return; }
+
+  clearMsg();
+  const btn = document.getElementById('spin-btn');
+  btn.disabled = true;
+  btn.textContent = '...';
+
+  // 1. Validate code
+  const { data: codes, error: codeErr } = await sb
+    .from('vip_campaign_codes')
+    .select('*')
+    .eq('code', code)
+    .eq('campaign_id', CAMPAIGN_ID)
+    .single();
+
+  if (codeErr || !codes) {
+    showMsg(t('err_invalid_code'), 'error');
+    btn.disabled = false; btn.textContent = t('spin_btn'); return;
+  }
+  if (codes.member_username && codes.member_username !== username) {
+    showMsg(t('err_wrong_user'), 'error');
+    btn.disabled = false; btn.textContent = t('spin_btn'); return;
+  }
+  if (codes.used_count >= codes.max_uses) {
+    showMsg(t('err_used_up'), 'error');
+    btn.disabled = false; btn.textContent = t('spin_btn'); return;
+  }
+
+  validCode = codes;
+  loggedInUser = username;
+  sessionStorage.setItem('sw_user', username);
+  doSpin(username, codes);
+}
+
+// ── Trigger Spin (when already logged in) ────────────────────
+async function triggerSpin() {
+  if (!loggedInUser) return; // not logged in — ignore click on wheel
+  if (spinning) return;
+
+  // Check if player has unused codes
+  const { data: availCodes } = await sb
+    .from('vip_campaign_codes')
+    .select('*')
+    .eq('campaign_id', CAMPAIGN_ID)
+    .eq('member_username', loggedInUser)
+    .lt('used_count', sb.rpc ? 1 : 999); // simplify: just fetch and check
+
+  const unused = (availCodes || []).filter(c => c.used_count < c.max_uses);
+  if (unused.length === 0) {
+    showMsg(lang === 'zh' ? '暂无可用兑换码' : lang === 'bm' ? 'Tiada kod tersedia' : 'No spin codes available', 'info');
+    return;
+  }
+  validCode = unused[0];
+  doSpin(loggedInUser, validCode);
+}
+
+// ── Do Spin ───────────────────────────────────────────────────
+async function doSpin(username, code) {
+  if (spinning) return;
+  spinning = true;
+  clearMsg();
+
+  const btn = document.getElementById('spin-btn');
+  if (btn) { btn.disabled = true; btn.textContent = '✨ Spinning...'; }
+
+  // Pick winner
+  const winnerIdx = pickWinner();
+  const winner = prizes[winnerIdx];
+
+  // Animate
+  spinToIndex(winnerIdx, async () => {
+    // Save to DB
+    const prizeSnapshot = {
+      id: winner.id,
+      name_en: winner.name_en,
+      name_zh: winner.name_zh,
+      name_bm: winner.name_bm,
+      prize_value: winner.prize_value,
+      prize_type: winner.prize_type,
+      turnover_multiplier: winner.turnover_multiplier
+    };
+
+    await sb.from('vip_campaign_records').insert({
+      campaign_id: CAMPAIGN_ID,
+      member_username: username,
+      code_used: code.code,
+      prize_id: winner.id || null,
+      prize_snapshot: prizeSnapshot,
+      status: 'pending',
+      is_visible: true
+    });
+
+    // Update code used_count
+    await sb.from('vip_campaign_codes')
+      .update({ used_count: (code.used_count || 0) + 1 })
+      .eq('id', code.id);
+
+    spinning = false;
+    showPlayerState();
+    loadHistory();
+    showPrizePopup(winner);
+  });
+}
+
+// ── Show Prize Popup ──────────────────────────────────────────
+function showPrizePopup(prize) {
+  document.getElementById('popup-title').textContent = t('congrats');
+  document.getElementById('popup-prize').textContent = prize['name_' + lang] || prize.name_en;
+  document.getElementById('popup-subtitle').textContent = prize.prize_value || '';
+  const msg = prize['popup_text_' + lang] || prize.popup_text_en || '';
+  document.getElementById('popup-msg').textContent = msg;
+
+  // Address form for physical prizes
+  const addrForm = document.getElementById('address-form');
+  if (prize.requires_address) {
+    addrForm.classList.add('show');
+  } else {
+    addrForm.classList.remove('show');
+  }
+
+  document.getElementById('popup-close').textContent = t('close_btn');
+  document.getElementById('overlay').classList.add('show');
+}
+
+function closePopup() {
+  document.getElementById('overlay').classList.remove('show');
+  const btn = document.getElementById('spin-btn');
+  if (btn) { btn.disabled = false; btn.textContent = t('spin_btn'); }
+}
+
+// ── Player State ──────────────────────────────────────────────
+function showPlayerState() {
+  document.getElementById('login-form').style.display = 'none';
+  document.getElementById('player-bar').classList.add('show');
+  document.getElementById('player-name-display').textContent = loggedInUser;
+  document.getElementById('history-section').classList.add('show');
+}
+
+function logout() {
+  loggedInUser = null;
+  validCode = null;
+  sessionStorage.removeItem('sw_user');
+  document.getElementById('login-form').style.display = 'flex';
+  document.getElementById('player-bar').classList.remove('show');
+  document.getElementById('history-section').classList.remove('show');
+  document.getElementById('history-list').innerHTML = '';
+  document.getElementById('input-username').value = '';
+  document.getElementById('input-code').value = '';
+  const btn = document.getElementById('spin-btn');
+  if (btn) { btn.disabled = false; btn.textContent = t('spin_btn'); }
+  clearMsg();
+}
+
+// ── Load History ──────────────────────────────────────────────
+async function loadHistory() {
+  if (!loggedInUser) return;
+  const { data } = await sb
+    .from('vip_campaign_records')
+    .select('*')
+    .eq('campaign_id', CAMPAIGN_ID)
+    .eq('member_username', loggedInUser)
+    .eq('is_visible', true)
+    .order('created_at', { ascending: false })
+    .limit(10);
+
+  const list = document.getElementById('history-list');
+  if (!data || data.length === 0) {
+    list.innerHTML = `<div style="color:#556;font-size:13px;text-align:center;padding:12px">${lang==='zh'?'暂无记录':lang==='bm'?'Tiada rekod':'No records yet'}</div>`;
+    return;
+  }
+
+  const statusMap = { pending: t('status_pending'), processing: t('status_processing'), completed: t('status_completed'), cancelled: t('status_cancelled') };
+
+  list.innerHTML = data.map(r => {
+    const snap = r.prize_snapshot || {};
+    const prizeName = snap['name_' + lang] || snap.name_en || snap.prize_value || '—';
+    const date = new Date(r.created_at).toLocaleDateString('en-MY', { day:'2-digit', month:'short', year:'numeric' });
+    const statusLabel = statusMap[r.status] || r.status;
+    return `<div class="history-item">
+      <div>
+        <div class="history-prize">${prizeName}</div>
+        <div class="history-date">${date}</div>
+      </div>
+      <span class="history-status status-${r.status}">${statusLabel}</span>
+    </div>`;
+  }).join('');
+}
+
+// ── Init ─────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
