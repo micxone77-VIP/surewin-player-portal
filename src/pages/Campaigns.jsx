@@ -111,6 +111,7 @@ export default function Campaigns() {
         <EmptyState filter={filter} counts={counts} onSwitchFilter={setFilter} />
       ) : (
         <div style={styles.list}>
+                    <LuckySpinCard />
           {filtered.map(c => (
             <CampaignCard
               key={c.id}
@@ -233,6 +234,61 @@ function CampaignCard({ campaign: c, onClick }) {
             View Campaign
             <ChevronIcon />
           </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// -- Lucky Spin Card ----------------------------------------------------------
+function LuckySpinCard() {
+  const [hovered, setHovered] = React.useState(false)
+  return (
+    <div
+      onClick={() => { window.location.href = '/lucky-spin' }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        background: 'linear-gradient(135deg, rgba(255,107,0,0.18) 0%, rgba(204,51,0,0.1) 100%)',
+        border: `1px solid ${hovered ? 'rgba(255,107,0,0.55)' : 'rgba(255,107,0,0.3)'}`,
+        borderRadius: 'var(--rl)',
+        overflow: 'hidden',
+        cursor: 'pointer',
+        transition: 'transform .15s, box-shadow .15s, border-color .15s',
+        transform: hovered ? 'translateY(-2px)' : 'translateY(0)',
+        boxShadow: hovered ? '0 8px 32px rgba(255,107,0,0.3)' : '0 4px 20px rgba(255,107,0,0.12)',
+        marginBottom: '.75rem',
+      }}
+    >
+      <div style={{ height: 3, background: 'linear-gradient(90deg, #FF6B00, #FFD700, #FF8C00)' }} />
+      <div style={{ padding: '1.1rem 1.25rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <div style={{
+          width: 52, height: 52, borderRadius: '50%',
+          background: 'linear-gradient(135deg, #FF6B00, #cc3300)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: '1.6rem', flexShrink: 0,
+          boxShadow: '0 4px 14px rgba(255,107,0,0.45)',
+        }}>🎰</div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: '.67rem', fontWeight: 700, letterSpacing: '.1em', color: '#FF8C00', textTransform: 'uppercase', marginBottom: '.2rem' }}>
+            🎁 VIP EXCLUSIVE · ACTIVE
+          </div>
+          <div style={{ fontSize: '1rem', fontWeight: 800, color: '#fff', marginBottom: '.2rem', lineHeight: 1.2 }}>
+            Lucky Spin
+          </div>
+          <div style={{ fontSize: '.78rem', color: 'rgba(255,255,255,0.55)', lineHeight: 1.4 }}>
+            Spin to win RM888, cashback & prizes!
+          </div>
+        </div>
+        <div style={{
+          padding: '.55rem 1rem',
+          background: 'linear-gradient(135deg, #FF6B00, #FF8C00)',
+          borderRadius: 8, color: '#fff', fontSize: '.8rem', fontWeight: 800,
+          letterSpacing: '.05em', flexShrink: 0,
+          boxShadow: '0 4px 12px rgba(255,107,0,0.4)',
+          minHeight: 38, display: 'flex', alignItems: 'center',
+        }}>
+          SPIN ›
         </div>
       </div>
     </div>
