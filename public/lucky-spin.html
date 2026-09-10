@@ -246,6 +246,27 @@ body > * { position: relative; z-index: 1; }
 }
 #wheel-center:active { transform: translate(-50%,-50%) scale(0.96); }
 
+/* ── Wheel Frame Overlay ───────────────────────── */
+#wheel-frame-img {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  z-index: 15;
+  display: none;
+}
+
+/* ── Win Banner ────────────────────────────────── */
+#win-banner-img {
+  width: 100%;
+  max-height: 120px;
+  object-fit: contain;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  display: none;
+}
+
 /* ── Card ──────────────────────────────────────── */
 .sw-card {
   width: 100%;
@@ -660,6 +681,7 @@ body > * { position: relative; z-index: 1; }
       </svg>
     </div>
     <canvas id="wheel-canvas" width="340" height="340"></canvas>
+    <img id="wheel-frame-img" src="" alt="">
     <div id="wheel-center" onclick="triggerSpin()">SPIN</div>
   </div>
 
@@ -693,6 +715,7 @@ body > * { position: relative; z-index: 1; }
 <!-- Prize Popup -->
 <div id="overlay">
   <div id="popup">
+    <img id="win-banner-img" src="" alt="">
     <span id="popup-emoji">🎉</span>
     <div id="popup-congrats" data-key="congrats">CONGRATULATIONS!</div>
     <div id="popup-prize"></div>
@@ -895,10 +918,81 @@ function clearMsg() {
   el.textContent = '';
 }
 
+// ── Load Campaign Settings ────────────────────────────────────
+async function loadCampaignSettings() {
+  const { data, error } = await sb
+    .from('vip_campaigns')
+    .select('wheel_settings, name')
+    .eq('id', CAMPAIGN_ID)
+    .single();
+
+  if (error || !data) return;
+  const ws = data.wheel_settings || {};
+
+  // Background image
+  if (ws.bg_image) {
+    document.body.style.backgroundImage = `url('${ws.bg_image}')`;
+    document.body.style.backgroundSize = 'cover';
+    document.body.style.backgroundPosition = 'center';
+    document.body.style.backgroundAttachment = 'fixed';
+    document.body.style.backgroundRepeat = 'no-repeat';
+  }
+
+  // Wheel frame overlay
+  const frameImg = document.getElementById('wheel-frame-img');
+  if (ws.wheel_frame && frameImg) {
+    frameImg.src = ws.wheel_frame;
+    frameImg.style.display = 'block';
+  }
+
+  // Win banner in popup
+  const bannerImg = document.getElementById('win-banner-img');
+  if (ws.win_banner && bannerImg) {
+    bannerImg.src = ws.win_banner;
+    bannerImg.style.display = 'block';
+  }
+
+  // Win popup background
+  if (ws.win_bg) {
+    const popup = document.getElementById('popup');
+    if (popup) {
+      popup.style.backgroundImage = `url('${ws.win_bg}')`;
+      popup.style.backgroundSize = 'cover';
+      popup.style.backgroundPosition = 'center';
+    }
+  }
+
+  // Campaign title / subtitle (with language support)
+  const nameEl = document.getElementById('campaign-name');
+  if (nameEl) {
+    const title = (lang === 'zh' && ws.title_zh) ? ws.title_zh :
+                  (lang === 'bm' && ws.title_bm) ? ws.title_bm :
+                  ws.title_en || null;
+    if (title) nameEl.textContent = title;
+  }
+  const subEl = document.getElementById('campaign-subtitle');
+  if (subEl) {
+    const sub = (lang === 'zh' && ws.subtitle_zh) ? ws.subtitle_zh :
+                (lang === 'bm' && ws.subtitle_bm) ? ws.subtitle_bm :
+                ws.subtitle_en || null;
+    if (sub) { subEl.textContent = sub; subEl.removeAttribute('data-key'); }
+  }
+
+  // Center spin button text
+  const centerEl = document.getElementById('wheel-center');
+  if (centerEl) {
+    const ct = (lang === 'zh' && ws.center_text_zh) ? ws.center_text_zh :
+               (lang === 'bm' && ws.center_text_bm) ? ws.center_text_bm :
+               ws.center_text_en || null;
+    if (ct) centerEl.textContent = ct;
+  }
+}
+
 // ── Init ──────────────────────────────────────────────────────
 async function init() {
   buildRimLights(24);
   await loadPrizes();
+  await loadCampaignSettings();
   applyI18n();
   const saved = sessionStorage.getItem('sw_user');
   if (saved) {
