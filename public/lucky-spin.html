@@ -246,6 +246,18 @@ body > * { position: relative; z-index: 1; }
 }
 #wheel-center:active { transform: translate(-50%,-50%) scale(0.96); }
 
+/* ── Background Image Layer ─────────────────────── */
+#bg-image-el {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: none;
+  pointer-events: none;
+}
+
 /* ── Wheel Frame Overlay ───────────────────────── */
 #wheel-frame-img {
   position: absolute;
@@ -633,6 +645,7 @@ body > * { position: relative; z-index: 1; }
 <body>
 
 <canvas id="bg-canvas"></canvas>
+<div id="bg-image-el"></div>
 <canvas id="confetti-canvas"></canvas>
 
 <!-- Language Bar -->
@@ -930,20 +943,25 @@ async function loadCampaignSettings() {
   if (error || !data) return;
   const ws = data.wheel_settings || {};
 
-  // Background image
+  // Background image — shown above particle canvas
   if (ws.bg_image) {
-    document.body.style.backgroundImage = `url('${ws.bg_image}')`;
-    document.body.style.backgroundSize = 'cover';
-    document.body.style.backgroundPosition = 'center';
-    document.body.style.backgroundAttachment = 'fixed';
-    document.body.style.backgroundRepeat = 'no-repeat';
+    const bgEl = document.getElementById('bg-image-el');
+    if (bgEl) {
+      bgEl.style.backgroundImage = `url('${ws.bg_image}')`;
+      bgEl.style.display = 'block';
+    }
   }
 
-  // Wheel frame overlay
+  // Wheel frame overlay — hide rim lights when custom frame is set
   const frameImg = document.getElementById('wheel-frame-img');
   if (ws.wheel_frame && frameImg) {
     frameImg.src = ws.wheel_frame;
     frameImg.style.display = 'block';
+    // Hide the default HTML rim lights — the custom frame replaces them
+    const rim = document.getElementById('wheel-rim');
+    const glow = document.getElementById('wheel-glow');
+    if (rim) rim.style.display = 'none';
+    if (glow) glow.style.display = 'none';
   }
 
   // Win banner in popup
